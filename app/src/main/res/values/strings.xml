@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">tripplan-android</string>
-</resources>
+
+    <string-array name="array_tipos_transporte">
+        <item>Avião</item>
+        <item>Comboio</item>
+        <item>Carro Próprio</item>
+        <item>Carro Alugado</item>
+        <item>Autocarro</item>
+        <item>Barco</item>
+    </string-array></resources>

@@ -7,7 +7,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class ServiceBuilder {
     // Se usares emulador: "http://10.0.2.2:3000/"
     // Se for telemóvel: IP do PC (ex: "http://192.168.1.66:3000/")
-    private static final String URL = "http://10.0.2.2:3000/";
+    private static final String URL = "http://192.168.1.237:8080/";
 
     private static Retrofit retrofit = null;
 

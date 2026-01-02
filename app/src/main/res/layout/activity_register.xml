@@ -39,18 +39,21 @@
         <!-- Campos do Formulário (Baseado no DER: utilizador) -->
 
         <!-- NOME -->
+
+        <!-- EMAIL -->
+
         <EditText
             android:id="@+id/etNome"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="52dp"
             android:background="@drawable/bg_input_border"
             android:hint="Nome Completo"
             android:inputType="textPersonName"
             android:paddingHorizontal="16dp"
-            app:layout_constraintTop_toBottomOf="@+id/tvSubtitle" />
+            app:layout_constraintTop_toBottomOf="@+id/tvSubtitle"
+            tools:layout_editor_absoluteX="70dp" />
 
-        <!-- EMAIL -->
         <EditText
             android:id="@+id/etEmailRegisto"
             android:layout_width="match_parent"
@@ -74,31 +77,23 @@
             android:paddingHorizontal="16dp"
             app:layout_constraintTop_toBottomOf="@+id/etEmailRegisto" />
 
-        <!-- MORADA -->
-        <EditText
-            android:id="@+id/etMorada"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/bg_input_border"
-            android:hint="Morada"
-            android:inputType="textPostalAddress"
-            android:paddingHorizontal="16dp"
-            app:layout_constraintTop_toBottomOf="@+id/etTelefone" />
+
 
         <!-- PASSWORD -->
+
+
+        <!-- CONFIRMAR PASSWORD -->
         <EditText
             android:id="@+id/etPassRegisto"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_marginTop="16dp"
             android:background="@drawable/bg_input_border"
             android:hint="Password"
             android:inputType="textPassword"
             android:paddingHorizontal="16dp"
-            app:layout_constraintTop_toBottomOf="@+id/etMorada" />
+            tools:layout_editor_absoluteX="-6dp"
+            tools:layout_editor_absoluteY="381dp" />
 
-        <!-- CONFIRMAR PASSWORD -->
         <EditText
             android:id="@+id/etPassConfirm"
             android:layout_width="match_parent"
@@ -124,7 +119,8 @@
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/etPassConfirm"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintVertical_bias="0.68"
+            tools:layout_editor_absoluteX="16dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

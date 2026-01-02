@@ -26,36 +26,56 @@ public class CriarViagemActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Configuração do ViewBinding em Java
         binding = ActivityCriarViagemBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        calendar = Calendar.getInstance();
-
-        // 1. Cliques para abrir o calendário
-        binding.etDataInicio.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mostrarCalendario(true);
-            }
-        });
-        binding.ivCalendarInicio.setOnClickListener(v -> mostrarCalendario(true));
-
-        binding.etDataFim.setOnClickListener(v -> mostrarCalendario(false));
-        binding.ivCalendarFim.setOnClickListener(v -> mostrarCalendario(false));
-
-        // 2. Clique no botão Criar
+        // --- Configurar o Botão "CRIAR VIAGEM" ---
         binding.btnCriar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String destino = binding.etDestino.getText().toString();
-                String dataInicio = binding.etDataInicio.getText().toString();
-                String dataFim = binding.etDataFim.getText().toString();
+                // 1. Recolher dados da Viagem (Master)
+                // Nota: O ID agora é etNomeViagem (antes era etDestino)
+                String nome = binding.etNomeViagem.getText().toString();
+                String dataIda = binding.etDataInicio.getText().toString();
+                String dataVolta = binding.etDataFim.getText().toString();
 
-                if (validarCampos(destino, dataInicio, dataFim)) {
-                    enviarViagemParaAPI(destino, dataInicio, dataFim);
+                // 2. Recolher dados do Transporte (Detail)
+                // O Spinner lê-se de forma diferente dos EditText
+                String transTipo = binding.spTransporteTipo.getSelectedItem().toString();
+                String transOrigem = binding.etTransporteOrigem.getText().toString();
+                String transDestino = binding.etTransporteDestino.getText().toString();
+
+                // 3. Validação Simples (Para não enviar vazio)
+                if (nome.isEmpty()) {
+                    Toast.makeText(CriarViagemActivity.this, "Falta o nome da viagem!", Toast.LENGTH_SHORT).show();
+                    return;
                 }
+
+                // 4. MODO DEMONSTRAÇÃO (Simulação Master/Detail)
+                // Preparamos o texto para mostrar ao professor
+                String resumo = "VIAGEM (Master):\n" +
+                        "- Nome: " + nome + "\n" +
+                        "- Datas: " + dataIda + " até " + dataVolta + "\n\n" +
+                        "TRANSPORTE (Detail):\n" +
+                        "- Tipo: " + transTipo + "\n" +
+                        "- Rota: " + transOrigem + " -> " + transDestino;
+
+                // 5. Mostrar Janela de Sucesso
+                new androidx.appcompat.app.AlertDialog.Builder(CriarViagemActivity.this)
+                        .setTitle("Sucesso (Dados Recolhidos)")
+                        .setMessage(resumo)
+                        .setPositiveButton("OK - Voltar ao Menu", (dialog, which) -> {
+                            // Fecha esta janela e volta atrás
+                            finish();
+                        })
+                        .show();
             }
+        });
+
+        // --- Configurar o Menu de Baixo (Opcional, para não dar erro se clicares) ---
+        binding.bottomNavigation.setOnItemSelectedListener(item -> {
+            Toast.makeText(this, "Menu clicado: " + item.getTitle(), Toast.LENGTH_SHORT).show();
+            return true;
         });
     }
 

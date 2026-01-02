@@ -22,11 +22,11 @@ public class RegisterActivity extends AppCompatActivity {
             String pass = binding.etPassRegisto.getText().toString();
             String passConfirm = binding.etPassConfirm.getText().toString();
             String telefone = binding.etTelefone.getText().toString();
-            String morada = binding.etMorada.getText().toString();
+
 
             //Validações
 
-            if (nome.isEmpty() || email.isEmpty() || pass.isEmpty() || passConfirm.isEmpty() || telefone.isEmpty() || morada.isEmpty()) {
+            if (nome.isEmpty() || email.isEmpty() || pass.isEmpty() || passConfirm.isEmpty() || telefone.isEmpty() ) {
                 Toast.makeText(this, "Preencha todos os campos", Toast.LENGTH_SHORT).show();
                 return;
             }

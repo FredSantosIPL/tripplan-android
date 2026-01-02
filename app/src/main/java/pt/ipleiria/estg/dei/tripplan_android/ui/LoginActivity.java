@@ -25,17 +25,27 @@ public class LoginActivity extends AppCompatActivity {
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+//        binding.btnLogin.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                String email = binding.etEmail.getText().toString();
+//                String pass = binding.etPassword.getText().toString();
+//
+//                if (!email.isEmpty() && !pass.isEmpty()) {
+//                    fazerLogin(email, pass);
+//                } else {
+//                    Toast.makeText(LoginActivity.this, "Preenche os campos!", Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//        });
+
         binding.btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String email = binding.etEmail.getText().toString();
-                String pass = binding.etPassword.getText().toString();
-
-                if (!email.isEmpty() && !pass.isEmpty()) {
-                    fazerLogin(email, pass);
-                } else {
-                    Toast.makeText(LoginActivity.this, "Preenche os campos!", Toast.LENGTH_SHORT).show();
-                }
+                // Truque para saltar o login e ir trabalhar no que interessa
+                Intent intent = new Intent(LoginActivity.this, CriarViagemActivity.class);
+                startActivity(intent);
+                finish();
             }
         });
 
