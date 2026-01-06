@@ -52,4 +52,8 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     // Opcional: Para veres os logs do que é enviado (muito útil para debug)
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
+    // MQTT (Para o Messaging)
+    implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5")
+    implementation("org.eclipse.paho:org.eclipse.paho.android.service:1.1.1")
 }

@@ -1,34 +1,36 @@
 package pt.ipleiria.estg.dei.tripplan_android.models;
 
+import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 
 public class Transporte implements Serializable {
     private int id;
-    private String tipo;
+
+    @SerializedName("plano_viagem_id") // Coluna FK no SQL
+    private int planoViagemId;
+
+    private String tipo;    // "Avião", "Comboio", etc.
+
     private String origem;
+
     private String destino;
-    private String data_partida;
 
-    // Construtor vazio
-    public Transporte() {}
+    @SerializedName("data_partida") // DATETIME no SQL ("2026-01-04 23:22:00")
+    private String dataPartida;
 
-    // Construtor completo
-    public Transporte(String tipo, String origem, String destino, String data_partida) {
+    // Construtor
+    public Transporte(int id, int planoViagemId, String tipo, String origem, String destino, String dataPartida) {
+        this.id = id;
+        this.planoViagemId = planoViagemId;
         this.tipo = tipo;
         this.origem = origem;
         this.destino = destino;
-        this.data_partida = data_partida;
+        this.dataPartida = dataPartida;
     }
 
-    // Getters e Setters (O Java precisa disto)
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    // Getters e Setters (Gera com Alt+Insert se precisares de mais)
     public String getTipo() { return tipo; }
-    public void setTipo(String tipo) { this.tipo = tipo; }
     public String getOrigem() { return origem; }
-    public void setOrigem(String origem) { this.origem = origem; }
     public String getDestino() { return destino; }
-    public void setDestino(String destino) { this.destino = destino; }
-    public String getData_partida() { return data_partida; }
-    public void setData_partida(String data_partida) { this.data_partida = data_partida; }
+    public String getDataPartida() { return dataPartida; }
 }

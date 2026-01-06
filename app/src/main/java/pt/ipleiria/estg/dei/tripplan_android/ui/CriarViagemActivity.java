@@ -13,6 +13,7 @@ import java.util.Calendar;
 import pt.ipleiria.estg.dei.tripplan_android.api.ServiceBuilder;
 import pt.ipleiria.estg.dei.tripplan_android.api.TripplanAPI;
 import pt.ipleiria.estg.dei.tripplan_android.databinding.ActivityCriarViagemBinding;
+import pt.ipleiria.estg.dei.tripplan_android.models.SingletonGestor;
 import pt.ipleiria.estg.dei.tripplan_android.models.Viagem;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -102,9 +103,13 @@ public class CriarViagemActivity extends AppCompatActivity {
         return true;
     }
 
-    private void enviarViagemParaAPI(String destino, String inicio, String fim) {
+    private void enviarViagemParaAPI(String nomeViagem, String dataInicio, String dataFim) {
+
+        //buscar o ID do utilizador que está logado
+        int userId = SingletonGestor.getInstance(this).getUserIdLogado();
+
         // Criar o objeto Viagem
-        Viagem novaViagem = new Viagem(destino, inicio, fim);
+        Viagem novaViagem = new Viagem(0, userId, nomeViagem, dataInicio, dataFim);
 
         // Chamar a API
         TripplanAPI service = ServiceBuilder.buildService(TripplanAPI.class);
