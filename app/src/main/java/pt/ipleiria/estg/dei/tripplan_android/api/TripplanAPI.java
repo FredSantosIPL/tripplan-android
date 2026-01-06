@@ -35,7 +35,7 @@ public interface TripplanAPI {
     Call<Viagem> getViagemDetalhes(@Path("id") int id);
 
     // 3. Criar (CREATE)
-    @POST("api/trip")  // <--- MUDAR DE "trip" PARA "api/trip"
+    @POST("api/trip/create")  // <--- MUDAR DE "trip" PARA "api/trip"
     Call<Viagem> adicionarViagem(@Body Viagem novaViagem);
 
     // 4. Atualizar
