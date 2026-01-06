@@ -34,16 +34,15 @@ public interface TripplanAPI {
     @GET("trip/{id}/details")
     Call<Viagem> getViagemDetalhes(@Path("id") int id);
 
-    // 3. Criar (CREATE) - Rota automática do Yii2
-    // ATENÇÃO: Mudámos de 'api/criar_viagem.php' para 'trips'
-    @POST("trip")
+    // 3. Criar (CREATE)
+    @POST("api/trip")  // <--- MUDAR DE "trip" PARA "api/trip"
     Call<Viagem> adicionarViagem(@Body Viagem novaViagem);
 
-    // 4. Atualizar (UPDATE) - Requisito obrigatório
-    @PUT("trip/{id}")
+    // 4. Atualizar
+    @PUT("api/trip/{id}") // <--- Adiciona api/
     Call<Viagem> atualizarViagem(@Path("id") int id, @Body Viagem viagem);
 
-    // 5. Apagar (DELETE) - Requisito obrigatório
-    @DELETE("trip/{id}")
+    // 5. Apagar
+    @DELETE("api/trip/{id}") // <--- Adiciona api/
     Call<Void> apagarViagem(@Path("id") int id);
 }
