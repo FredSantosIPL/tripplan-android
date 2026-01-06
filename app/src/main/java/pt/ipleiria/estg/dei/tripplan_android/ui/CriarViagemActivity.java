@@ -30,48 +30,31 @@ public class CriarViagemActivity extends AppCompatActivity {
         binding = ActivityCriarViagemBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        // Inicializar o calendário
+        calendar = Calendar.getInstance();
+
+// Quando clicar no campo Data Início
+        binding.etDataInicio.setOnClickListener(v -> mostrarCalendario(true));
+
+// Quando clicar no campo Data Fim
+        binding.etDataFim.setOnClickListener(v -> mostrarCalendario(false));
+
         // --- Configurar o Botão "CRIAR VIAGEM" ---
         binding.btnCriar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 1. Recolher dados da Viagem (Master)
-                // Nota: O ID agora é etNomeViagem (antes era etDestino)
                 String nome = binding.etNomeViagem.getText().toString();
                 String dataIda = binding.etDataInicio.getText().toString();
                 String dataVolta = binding.etDataFim.getText().toString();
 
-                // 2. Recolher dados do Transporte (Detail)
-                // O Spinner lê-se de forma diferente dos EditText
-                String transTipo = binding.spTransporteTipo.getSelectedItem().toString();
-                String transOrigem = binding.etTransporteOrigem.getText().toString();
-                String transDestino = binding.etTransporteDestino.getText().toString();
-
-                // 3. Validação Simples (Para não enviar vazio)
-                if (nome.isEmpty()) {
-                    Toast.makeText(CriarViagemActivity.this, "Falta o nome da viagem!", Toast.LENGTH_SHORT).show();
-                    return;
+                // 1. Validar se os campos estão preenchidos
+                if (validarCampos(nome, dataIda, dataVolta)) {
+                    // 2. CHAMAR A API (Isto é o que conta para SIS!)
+                    enviarViagemParaAPI(nome, dataIda, dataVolta);
                 }
-
-                // 4. MODO DEMONSTRAÇÃO (Simulação Master/Detail)
-                // Preparamos o texto para mostrar ao professor
-                String resumo = "VIAGEM (Master):\n" +
-                        "- Nome: " + nome + "\n" +
-                        "- Datas: " + dataIda + " até " + dataVolta + "\n\n" +
-                        "TRANSPORTE (Detail):\n" +
-                        "- Tipo: " + transTipo + "\n" +
-                        "- Rota: " + transOrigem + " -> " + transDestino;
-
-                // 5. Mostrar Janela de Sucesso
-                new androidx.appcompat.app.AlertDialog.Builder(CriarViagemActivity.this)
-                        .setTitle("Sucesso (Dados Recolhidos)")
-                        .setMessage(resumo)
-                        .setPositiveButton("OK - Voltar ao Menu", (dialog, which) -> {
-                            // Fecha esta janela e volta atrás
-                            finish();
-                        })
-                        .show();
             }
         });
+
 
         // --- Configurar o Menu de Baixo (Opcional, para não dar erro se clicares) ---
         binding.bottomNavigation.setOnItemSelectedListener(item -> {
@@ -85,7 +68,7 @@ public class CriarViagemActivity extends AppCompatActivity {
             @Override
             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
                 // Formatar a data para YYYY-MM-DD
-                String dataFormatada = year + "-" + (month + 1) + "-" + dayOfMonth;
+                String dataFormatada = String.format("%04d-%02d-%02d", year, month + 1, dayOfMonth);
                 if (isDataInicio) {
                     binding.etDataInicio.setText(dataFormatada);
                 } else {
@@ -109,7 +92,7 @@ public class CriarViagemActivity extends AppCompatActivity {
         int userId = SingletonGestor.getInstance(this).getUserIdLogado();
 
         // Criar o objeto Viagem
-        Viagem novaViagem = new Viagem(0, userId, nomeViagem, dataInicio, dataFim);
+        Viagem novaViagem = new Viagem( 0, userId, nomeViagem, dataInicio, dataFim);
 
         // Chamar a API
         TripplanAPI service = ServiceBuilder.buildService(TripplanAPI.class);

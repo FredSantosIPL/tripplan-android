@@ -136,7 +136,7 @@ public class SingletonGestor {
                     // Aqui podes abrir a Activity de Detalhes ou atualizar algo
                     Toast.makeText(context, "Detalhes carregados: " + v.getNomeViagem(), Toast.LENGTH_SHORT).show();
                     // Exemplo: mostrar quantos transportes tem
-                    if (v.getTransportes() != null) {
+                    if (v   .getTransportes() != null) {
                         System.out.println("Transportes: " + v.getTransportes().size());
                     }
                 }

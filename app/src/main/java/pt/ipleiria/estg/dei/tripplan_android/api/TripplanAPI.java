@@ -20,13 +20,13 @@ public interface TripplanAPI {
     // NOTA: No Yii2, a rota de login geralmente não tem .php
     // Se criaste um controlador "AuthController" com action "Login", a rota é "auth/login"
     // Se estás a usar o standard do Yii2, confirma a rota correta. Vou assumir "login" ou "users/login".
-    @POST("users/login")
+    @POST("api/auth/login")
     Call<LoginResponse> fazerLogin(@Body LoginRequest request);
 
     /* --- VIAGENS (CRUD COMPLETO) --- */
 
     // 1. Ler todas (READ) - Rota automática do Yii2
-    @GET("trip")
+    @GET("api/trip")
     Call<List<Viagem>> getAllViagens(@Query("user_id") int userId);
 
     // 2. REQUISITO SIS: Master/Detail

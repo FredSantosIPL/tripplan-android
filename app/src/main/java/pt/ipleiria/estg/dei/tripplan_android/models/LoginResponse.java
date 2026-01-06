@@ -4,48 +4,49 @@ import com.google.gson.annotations.SerializedName;
 
 public class LoginResponse {
 
-    // O Token de autenticação (auth_key na BD)
-    @SerializedName("auth_key")
+    // --- CAMPOS QUE VÊM DO PHP ---
+
+    // 1. O PHP envia "token", não "auth_key"
+    @SerializedName("token")
     private String token;
 
-    // --- NOVOS CAMPOS QUE O TEU LOGIN ACTIVITY PEDE ---
-
-    // Para resolver o erro .getStatus()
-    // Nota: A tua API PHP tem de enviar um JSON com "status": "sucesso"
-    @SerializedName("status")
-    private String status;
-
-    // Para resolver o erro .getNome()
-    // Nota: A tua API PHP tem de enviar um JSON com "nome": "Ricardo"
-    @SerializedName("nome")
-    private String nome;
-
-    // Outros dados úteis
     @SerializedName("id")
     private int id;
 
     @SerializedName("username")
     private String username;
 
-    // --- GETTERS E SETTERS ---
+    @SerializedName("email")
+    private String email;
+
+    // --- GETTERS (USADOS PELA APP) ---
 
     public String getToken() {
         return token;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public int getId() {
+        return id;
     }
 
-    // Estes são os métodos que faltavam e davam erro a vermelho:
-    public String getStatus() {
-        return status;
+    public String getUsername() {
+        return username;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    // --- MÉTODOS DE COMPATIBILIDADE ---
+    // Estes métodos existem só para o teu código antigo não dar erro vermelho
+
+    // Se o teu código pede .getNome(), devolvemos o username
     public String getNome() {
-        return nome;
+        return username;
     }
 
-    public int getId() { return id; }
-    public String getUsername() { return username; }
+    // Se o teu código pede .getStatus(), devolvemos "OK" (porque se chegou aqui, o login funcionou)
+    public String getStatus() {
+        return "OK";
+    }
 }

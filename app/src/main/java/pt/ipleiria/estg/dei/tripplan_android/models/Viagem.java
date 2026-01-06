@@ -1,31 +1,17 @@
 package pt.ipleiria.estg.dei.tripplan_android.models;
 
-import com.google.gson.annotations.SerializedName;
-import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
-public class Viagem implements Serializable {
-
+public class Viagem {
     private int id;
-
-    @SerializedName("user_id") // CORRIGIDO: No teu SQL a coluna é 'user_id'
     private int userId;
-
-    @SerializedName("nome_viagem")
     private String nomeViagem;
-
-    @SerializedName("data_inicio")
     private String dataInicio;
-
-    @SerializedName("data_fim")
     private String dataFim;
+    private List<Transporte> transportes;
 
-    // --- Relação Master/Detail (SIS) ---
-    // A API Yii2 vai enviar isto se usares o ->with(['transportes'])
-    @SerializedName("transportes")
-    private ArrayList<Transporte> transportes;
-
-    // Construtor
+    // CONSTRUTOR 1: Completo (Usa este na CriarViagemActivity)
     public Viagem(int id, int userId, String nomeViagem, String dataInicio, String dataFim) {
         this.id = id;
         this.userId = userId;
@@ -33,6 +19,11 @@ public class Viagem implements Serializable {
         this.dataInicio = dataInicio;
         this.dataFim = dataFim;
         this.transportes = new ArrayList<>();
+    }
+
+    // CONSTRUTOR 2: Simples (Usa este na MainActivity para dados de teste)
+    public Viagem(String nomeViagem, String dataInicio, String dataFim) {
+        this(0, 0, nomeViagem, dataInicio, dataFim); // Define IDs como 0 automaticamente
     }
 
     // Getters e Setters
@@ -51,6 +42,6 @@ public class Viagem implements Serializable {
     public String getDataFim() { return dataFim; }
     public void setDataFim(String dataFim) { this.dataFim = dataFim; }
 
-    public ArrayList<Transporte> getTransportes() { return transportes; }
-    public void setTransportes(ArrayList<Transporte> transportes) { this.transportes = transportes; }
+    public List<Transporte> getTransportes() { return transportes; }
+    public void setTransportes(List<Transporte> transportes) { this.transportes = transportes; }
 }
