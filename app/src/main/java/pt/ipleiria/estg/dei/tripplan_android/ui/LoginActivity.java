@@ -9,9 +9,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import pt.ipleiria.estg.dei.tripplan_android.MainActivity;
 import pt.ipleiria.estg.dei.tripplan_android.api.ServiceBuilder;
 import pt.ipleiria.estg.dei.tripplan_android.api.TripplanAPI;
-import pt.ipleiria.estg.dei.tripplan_android.databinding.ActivityLoginBinding; // Confirma se o nome do teu XML é activity_login.xml
+import pt.ipleiria.estg.dei.tripplan_android.databinding.ActivityLoginBinding;
 import pt.ipleiria.estg.dei.tripplan_android.models.LoginRequest;
 import pt.ipleiria.estg.dei.tripplan_android.models.LoginResponse;
+import pt.ipleiria.estg.dei.tripplan_android.models.SingletonGestor; // <--- IMPORTANTE
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -40,11 +41,9 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-
-
-        // Link para o ecrã de registo (se tiveres)
+        // Link para o ecrã de registo
         binding.tvRegister.setOnClickListener(v -> {
-            startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
+            startActivity(new Intent(LoginActivity.this, RegisterActivity.class)); // Verifica se tens RegisterActivity criada
         });
     }
 
@@ -57,41 +56,39 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
-                // 1. Verificar se o servidor respondeu com SUCESSO (Código 200)
                 if (response.isSuccessful()) {
                     LoginResponse loginResponse = response.body();
 
-                    // 2. Verificar se o corpo não veio vazio e se o token existe
                     if (loginResponse != null && loginResponse.getToken() != null) {
 
-                        // SUCESSO! Guardar o token e mudar de ecrã
-                        String token = loginResponse.getToken();
+                        // --- AQUI ESTÁ A MUDANÇA CRÍTICA ---
 
-                        Toast.makeText(LoginActivity.this, "Login com sucesso!", Toast.LENGTH_SHORT).show();
+                        // 1. Ir buscar o ID que veio da API
+                        // Nota: Tens de ter o método getId() no teu modelo LoginResponse.java!
+                        int userId = loginResponse.getId();
 
-                        // AQUI GUARDAS O TOKEN (SharedPreferences ou Singleton)
-                        // SingletonGestor.getInstance(this).setToken(token);
+                        // 2. Guardar no Singleton para usar na CriarViagemActivity
+                        SingletonGestor.getInstance(LoginActivity.this).setUserIdLogado(userId);
 
-                        // Mudar de Activity
+                        // Feedback visual (Opcional, só para veres que funcionou)
+                        Toast.makeText(LoginActivity.this, "Bem-vindo! (ID: " + userId + ")", Toast.LENGTH_SHORT).show();
+
+                        // 3. Mudar de Activity
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                         startActivity(intent);
                         finish();
 
                     } else {
-                        // O servidor respondeu 200 OK, mas o JSON veio sem token (nomes errados?)
-                        Toast.makeText(LoginActivity.this, "Erro: Token não encontrado na resposta.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(LoginActivity.this, "Erro: Token não encontrado.", Toast.LENGTH_LONG).show();
                     }
 
                 } else {
-                    // 3. O servidor respondeu ERRO (401 Unauthorized, 404, 500)
-                    // Isto evita o NullPointerException quando erras a password!
                     Toast.makeText(LoginActivity.this, "Login falhou: Verifique email/password", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<LoginResponse> call, Throwable t) {
-                // Erro de rede (WAMP desligado, IP errado, etc.)
                 Toast.makeText(LoginActivity.this, "Erro de Rede: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });

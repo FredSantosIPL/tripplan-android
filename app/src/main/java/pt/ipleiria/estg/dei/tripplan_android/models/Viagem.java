@@ -1,17 +1,34 @@
 package pt.ipleiria.estg.dei.tripplan_android.models;
 
+import com.google.gson.annotations.SerializedName;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Viagem {
+
+    @SerializedName("id")
     private int id;
+
+    // Na BD é 'user_id', no Java é 'userId'
+    @SerializedName("user_id")
     private int userId;
+
+    // Na BD é 'nome_viagem', no Java é 'nomeViagem'
+    @SerializedName("nome_viagem")
     private String nomeViagem;
+
+    // Na BD é 'data_inicio', no Java é 'dataInicio'
+    @SerializedName("data_inicio")
     private String dataInicio;
+
+    // Na BD é 'data_fim', no Java é 'dataFim'
+    @SerializedName("data_fim")
     private String dataFim;
+
     private List<Transporte> transportes;
 
-    // CONSTRUTOR 1: Completo (Usa este na CriarViagemActivity)
+    // --- CONSTRUTORES ---
+
     public Viagem(int id, int userId, String nomeViagem, String dataInicio, String dataFim) {
         this.id = id;
         this.userId = userId;
@@ -21,12 +38,14 @@ public class Viagem {
         this.transportes = new ArrayList<>();
     }
 
-    // CONSTRUTOR 2: Simples (Usa este na MainActivity para dados de teste)
+    // Construtor simples (útil para testes)
     public Viagem(String nomeViagem, String dataInicio, String dataFim) {
-        this(0, 0, nomeViagem, dataInicio, dataFim); // Define IDs como 0 automaticamente
+        this(0, 0, nomeViagem, dataInicio, dataFim);
     }
 
-    // Getters e Setters
+    // --- GETTERS E SETTERS ---
+    // Podes manter os nomes dos Getters/Setters como tinhas, o Gson trata do resto!
+
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 

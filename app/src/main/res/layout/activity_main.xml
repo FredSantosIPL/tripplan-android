@@ -12,9 +12,20 @@
         android:layout_height="wrap_content"
         android:text="Nova Viagem" />
 
+    <ImageView
+        android:id="@+id/btnDelete"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_gravity="end|center_vertical"
+        android:layout_marginEnd="8dp"
+        android:contentDescription="Apagar Viagem"
+        android:src="@android:drawable/ic_menu_delete" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewViagens"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="10dp"/>
+
+
 </LinearLayout>

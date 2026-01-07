@@ -4,6 +4,7 @@ import java.util.List;
 
 import pt.ipleiria.estg.dei.tripplan_android.models.LoginRequest;
 import pt.ipleiria.estg.dei.tripplan_android.models.LoginResponse;
+import pt.ipleiria.estg.dei.tripplan_android.models.Transporte;
 import pt.ipleiria.estg.dei.tripplan_android.models.Viagem;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -35,7 +36,7 @@ public interface TripplanAPI {
     Call<Viagem> getViagemDetalhes(@Path("id") int id);
 
     // 3. Criar (CREATE)
-    @POST("api/trip")  // <--- MUDAR DE "trip" PARA "api/trip"
+    @POST("api/trip/create")  // <--- MUDAR DE "trip" PARA "api/trip"
     Call<Viagem> adicionarViagem(@Body Viagem novaViagem);
 
     // 4. Atualizar
@@ -45,4 +46,8 @@ public interface TripplanAPI {
     // 5. Apagar
     @DELETE("api/trip/{id}") // <--- Adiciona api/
     Call<Void> apagarViagem(@Path("id") int id);
+
+    @POST("api/transporte")
+    Call<Transporte> adicionarTransporte(@Body Transporte transporte);
+
 }
