@@ -5,15 +5,16 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.Calendar;
+import java.util.Locale;
 
 import pt.ipleiria.estg.dei.tripplan_android.api.ServiceBuilder;
 import pt.ipleiria.estg.dei.tripplan_android.api.TripplanAPI;
-import pt.ipleiria.estg.dei.tripplan_android.databinding.ActivityCriarViagemBinding;
+import pt.ipleiria.estg.dei.tripplan_android.databinding.ActivityCriarViagemBinding; // Confirma se o nome do XML é activity_criar_viagem.xml
 import pt.ipleiria.estg.dei.tripplan_android.models.SingletonGestor;
+import pt.ipleiria.estg.dei.tripplan_android.models.Transporte;
 import pt.ipleiria.estg.dei.tripplan_android.models.Viagem;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -30,89 +31,126 @@ public class CriarViagemActivity extends AppCompatActivity {
         binding = ActivityCriarViagemBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // Inicializar o calendário
         calendar = Calendar.getInstance();
 
-// Quando clicar no campo Data Início
-        binding.etDataInicio.setOnClickListener(v -> mostrarCalendario(true));
+        // 1. Configurar os cliques nos calendários
+        configurarDatePicker(binding.etDataInicio);
+        configurarDatePicker(binding.etDataFim);
+        // Também permitir clicar nos ícones
+        binding.ivCalendarInicio.setOnClickListener(v -> binding.etDataInicio.performClick());
+        binding.ivCalendarFim.setOnClickListener(v -> binding.etDataFim.performClick());
 
-// Quando clicar no campo Data Fim
-        binding.etDataFim.setOnClickListener(v -> mostrarCalendario(false));
-
-        // --- Configurar o Botão "CRIAR VIAGEM" ---
+        // 2. Configurar Botão Criar
         binding.btnCriar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String nome = binding.etNomeViagem.getText().toString();
-                String dataIda = binding.etDataInicio.getText().toString();
-                String dataVolta = binding.etDataFim.getText().toString();
+                String dataInicio = binding.etDataInicio.getText().toString();
+                String dataFim = binding.etDataFim.getText().toString();
 
-                // 1. Validar se os campos estão preenchidos
-                if (validarCampos(nome, dataIda, dataVolta)) {
-                    // 2. CHAMAR A API (Isto é o que conta para SIS!)
-                    enviarViagemParaAPI(nome, dataIda, dataVolta);
-                }
-            }
-        });
-
-
-        // --- Configurar o Menu de Baixo (Opcional, para não dar erro se clicares) ---
-        binding.bottomNavigation.setOnItemSelectedListener(item -> {
-            Toast.makeText(this, "Menu clicado: " + item.getTitle(), Toast.LENGTH_SHORT).show();
-            return true;
-        });
-    }
-
-    private void mostrarCalendario(final boolean isDataInicio) {
-        new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                // Formatar a data para YYYY-MM-DD
-                String dataFormatada = String.format("%04d-%02d-%02d", year, month + 1, dayOfMonth);
-                if (isDataInicio) {
-                    binding.etDataInicio.setText(dataFormatada);
+                if (nome.isEmpty() || dataInicio.isEmpty() || dataFim.isEmpty()) {
+                    Toast.makeText(CriarViagemActivity.this, "Preenche os dados da viagem!", Toast.LENGTH_SHORT).show();
                 } else {
-                    binding.etDataFim.setText(dataFormatada);
+                    enviarViagemParaAPI(nome, dataInicio, dataFim);
                 }
             }
-        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
-    }
+        });
 
-    private boolean validarCampos(String destino, String inicio, String fim) {
-        if (destino.isEmpty() || inicio.isEmpty() || fim.isEmpty()) {
-            Toast.makeText(this, "Preenche todos os campos!", Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        return true;
+        // Botão de voltar (seta ou logo)
+        binding.ivLogo.setOnClickListener(v -> finish());
     }
 
     private void enviarViagemParaAPI(String nomeViagem, String dataInicio, String dataFim) {
-
-        //buscar o ID do utilizador que está logado
+        // Obter ID do User (Segurança para não ir 0)
         int userId = SingletonGestor.getInstance(this).getUserIdLogado();
+        if (userId == 0) userId = 1;
 
-        // Criar o objeto Viagem
-        Viagem novaViagem = new Viagem( 0, userId, nomeViagem, dataInicio, dataFim);
+        // Criar Objeto Viagem
+        Viagem novaViagem = new Viagem(0, userId, nomeViagem, dataInicio, dataFim);
 
-        // Chamar a API
+        // Chamada à API
         TripplanAPI service = ServiceBuilder.buildService(TripplanAPI.class);
         Call<Viagem> call = service.adicionarViagem(novaViagem);
 
         call.enqueue(new Callback<Viagem>() {
             @Override
             public void onResponse(Call<Viagem> call, Response<Viagem> response) {
-                if (response.isSuccessful()) {
-                    Toast.makeText(CriarViagemActivity.this, "Viagem criada com sucesso!", Toast.LENGTH_LONG).show();
-                    finish(); // Fecha a atividade
+                if (response.isSuccessful() && response.body() != null) {
+                    // SUCESSO! A viagem foi criada.
+                    int idNovaViagem = response.body().getId();
+
+                    // Agora tentamos criar o Transporte associado
+                    criarTransporte(idNovaViagem, dataInicio);
                 } else {
-                    Toast.makeText(CriarViagemActivity.this, "Erro: " + response.code(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(CriarViagemActivity.this, "Erro ao criar viagem: " + response.code(), Toast.LENGTH_LONG).show();
                 }
             }
 
             @Override
             public void onFailure(Call<Viagem> call, Throwable t) {
-                Toast.makeText(CriarViagemActivity.this, "Falha na rede: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                Toast.makeText(CriarViagemActivity.this, "Erro de rede: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }
+        });
+    }
+
+    private void criarTransporte(int idViagem, String dataPartida) {
+        // --- AQUI ESTAVAM OS TEUS ERROS, AGORA CORRIGIDOS COM OS IDs DO XML ---
+
+        // 1. Ler dados dos campos corretos
+        String origem = binding.etTransporteOrigem.getText().toString();
+        String destino = binding.etTransporteDestino.getText().toString();
+
+        // Ler do Spinner (Assumindo que tens o array criado nos resources)
+        String tipo = "";
+        if (binding.spTransporteTipo.getSelectedItem() != null) {
+            tipo = binding.spTransporteTipo.getSelectedItem().toString();
+        }
+
+        // 2. Se preencheu transporte, envia
+        if (!origem.isEmpty() && !destino.isEmpty()) {
+
+            // Construtor com 6 argumentos (id, plano_viagem_id, tipo, origem, destino, data)
+            Transporte novoTransporte = new Transporte(0, idViagem, tipo, origem, destino, dataPartida);
+
+            TripplanAPI service = ServiceBuilder.buildService(TripplanAPI.class);
+            Call<Transporte> call = service.adicionarTransporte(novoTransporte);
+
+            call.enqueue(new Callback<Transporte>() {
+                @Override
+                public void onResponse(Call<Transporte> call, Response<Transporte> response) {
+                    if (response.isSuccessful()) {
+                        Toast.makeText(CriarViagemActivity.this, "Viagem e Transporte criados!", Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(CriarViagemActivity.this, "Viagem OK, Transporte Falhou.", Toast.LENGTH_SHORT).show();
+                    }
+                    finish(); // Fecha a janela
+                }
+
+                @Override
+                public void onFailure(Call<Transporte> call, Throwable t) {
+                    Toast.makeText(CriarViagemActivity.this, "Erro rede no transporte", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+            });
+        } else {
+            // Se não preencheu transporte, finaliza só com a viagem
+            Toast.makeText(CriarViagemActivity.this, "Viagem criada (sem transporte)", Toast.LENGTH_SHORT).show();
+            finish();
+        }
+    }
+
+    // Método auxiliar para mostrar o calendário
+    private void configurarDatePicker(final android.widget.EditText editText) {
+        editText.setOnClickListener(v -> {
+            new DatePickerDialog(CriarViagemActivity.this,
+                    (view, year, month, dayOfMonth) -> {
+                        // Formatar a data para YYYY-MM-DD (Formato SQL)
+                        String dataFormatada = String.format(Locale.getDefault(), "%d-%02d-%02d", year, month + 1, dayOfMonth);
+                        editText.setText(dataFormatada);
+                    },
+                    calendar.get(Calendar.YEAR),
+                    calendar.get(Calendar.MONTH),
+                    calendar.get(Calendar.DAY_OF_MONTH)).show();
         });
     }
 }
