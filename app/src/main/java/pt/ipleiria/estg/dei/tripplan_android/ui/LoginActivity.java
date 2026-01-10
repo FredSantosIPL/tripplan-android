@@ -12,7 +12,7 @@ import pt.ipleiria.estg.dei.tripplan_android.api.TripplanAPI;
 import pt.ipleiria.estg.dei.tripplan_android.databinding.ActivityLoginBinding;
 import pt.ipleiria.estg.dei.tripplan_android.models.LoginRequest;
 import pt.ipleiria.estg.dei.tripplan_android.models.LoginResponse;
-import pt.ipleiria.estg.dei.tripplan_android.models.SingletonGestor; // <--- IMPORTANTE
+import pt.ipleiria.estg.dei.tripplan_android.models.SingletonGestor;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -43,7 +43,7 @@ public class LoginActivity extends AppCompatActivity {
 
         // Link para o ecrã de registo
         binding.tvRegister.setOnClickListener(v -> {
-            startActivity(new Intent(LoginActivity.this, RegisterActivity.class)); // Verifica se tens RegisterActivity criada
+            startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
         });
     }
 
@@ -61,17 +61,18 @@ public class LoginActivity extends AppCompatActivity {
 
                     if (loginResponse != null && loginResponse.getToken() != null) {
 
-                        // --- AQUI ESTÁ A MUDANÇA CRÍTICA ---
-
-                        // 1. Ir buscar o ID que veio da API
-                        // Nota: Tens de ter o método getId() no teu modelo LoginResponse.java!
+                        // --- CORREÇÃO AQUI ---
                         int userId = loginResponse.getId();
+                        String token = loginResponse.getToken();
 
-                        // 2. Guardar no Singleton para usar na CriarViagemActivity
-                        SingletonGestor.getInstance(LoginActivity.this).setUserIdLogado(userId);
+                        // 1. Instanciar o Gestor numa variável
+                        SingletonGestor gestor = SingletonGestor.getInstance(LoginActivity.this);
 
-                        // Feedback visual (Opcional, só para veres que funcionou)
-                        Toast.makeText(LoginActivity.this, "Bem-vindo! (ID: " + userId + ")", Toast.LENGTH_SHORT).show();
+                        // 2. Usar a variável para guardar os dados
+                        gestor.setUserIdLogado(userId);
+                        gestor.setToken(token); // Agora já não dá erro!
+
+                        Toast.makeText(LoginActivity.this, "Bem-vindo!", Toast.LENGTH_SHORT).show();
 
                         // 3. Mudar de Activity
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);

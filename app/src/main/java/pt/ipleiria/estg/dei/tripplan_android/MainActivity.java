@@ -41,12 +41,7 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-        // Configuração das margens para EdgeToEdge
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+
 
         // 1. Inicializar a lista vazia (o onResume carregará os dados da API)
         listaDeViagens = new ArrayList<>();
@@ -58,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
         // 3. Configurar o Botão para abrir CriarViagemActivity
-        Button btnCriar = findViewById(R.id.btnCriar);
+        View btnCriar = findViewById(R.id.fabAdicionar);
         btnCriar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

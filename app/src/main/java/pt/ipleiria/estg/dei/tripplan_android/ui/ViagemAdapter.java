@@ -3,13 +3,16 @@ package pt.ipleiria.estg.dei.tripplan_android.ui;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 import pt.ipleiria.estg.dei.tripplan_android.models.Viagem;
 
-// O nome da classe deve ser igual ao nome do ficheiro (ViagensAdapter)
+// Se o "R" ficar vermelho, adiciona esta linha (troca pelo nome do TEU pacote se for diferente)
+import pt.ipleiria.estg.dei.tripplan_android.R;
+
 public class ViagemAdapter extends RecyclerView.Adapter<ViagemAdapter.ViagemViewHolder> {
 
     private List<Viagem> listaViagens;
@@ -21,19 +24,22 @@ public class ViagemAdapter extends RecyclerView.Adapter<ViagemAdapter.ViagemView
     @NonNull
     @Override
     public ViagemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // CORREÇÃO AQUI: Usamos 'parent.getContext()' para garantir que temos o contexto correto
+        // Perfeito: a carregar o layout do cartão que criaste
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(android.R.layout.simple_list_item_1, parent, false);
+                .inflate(R.layout.activitiy_mostrar_viagem, parent, false);
         return new ViagemViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViagemViewHolder holder, int position) {
-        Viagem viagem = listaViagens.get(position);
+        Viagem viagemAtual = listaViagens.get(position);
 
-        // Agora mostramos o Nome, Data Início e Data Fim
-        String texto = viagem.getNomeViagem() + "\n" + viagem.getDataInicio() + " até " + viagem.getDataFim();
-        holder.tituloViagem.setText(texto);
+        // Aqui juntas o Título com a Data. Ex: "Férias em Paris, 12/05/2024"
+        holder.textNomeCidade.setText(viagemAtual.getNomeViagem() + ", " + viagemAtual.getDataInicio());
+
+        // Nota: A imagem vai aparecer sempre a mesma (a que puseste no XML)
+        // porque ainda não estamos a mudar a imagem aqui via código.
+        // Para já serve perfeitamente para testar o visual!
     }
 
     @Override
@@ -42,11 +48,16 @@ public class ViagemAdapter extends RecyclerView.Adapter<ViagemAdapter.ViagemView
     }
 
     public static class ViagemViewHolder extends RecyclerView.ViewHolder {
-        TextView tituloViagem;
+
+        TextView textNomeCidade;
+        ImageView imageCidade;
 
         public ViagemViewHolder(@NonNull View itemView) {
             super(itemView);
-            tituloViagem = itemView.findViewById(android.R.id.text1);
+
+            textNomeCidade = itemView.findViewById(R.id.textTituloViagem);
+            //imageCidade = itemView.findViewById(R.id.imageCidade);
+
         }
     }
 }

@@ -2,6 +2,7 @@ package pt.ipleiria.estg.dei.tripplan_android.models;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences; // [NOVO] Importante para guardar dados
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.widget.Toast;
@@ -24,16 +25,20 @@ public class SingletonGestor {
     // --- VARIÁVEIS PARA A API (SIS) ---
     private ArrayList<Viagem> viagens;
     private TripplanAPI apiService;
-    private ViagensListener viagensListener; // Para avisar a Activity
+    private ViagensListener viagensListener;
+
+    // [NOVO] Variáveis de Sessão (ID e Token)
+    private int userIdLogado = 0;
+    private String token = null; // [NOVO] Variável para guardar o Token
 
     private SingletonGestor(Context context){
         this.context = context;
         this.viagens = new ArrayList<>();
 
-        // 1. Inicializar Base de Dados Local (O teu código antigo)
+        // 1. Inicializar Base de Dados Local
         bdHelper = new TripPlanBDHelper(context);
 
-        // 2. Inicializar a API (Retrofit)
+        // 2. Inicializar a API
         apiService = ServiceBuilder.buildService(TripplanAPI.class);
     }
 
@@ -44,7 +49,7 @@ public class SingletonGestor {
         return instance;
     }
 
-    // --- INTERFACE LISTENER (Para a Activity saber quando atualizar a lista) ---
+    // --- INTERFACE LISTENER ---
     public interface ViagensListener {
         void onRefreshLista(ArrayList<Viagem> listaViagens);
     }
@@ -58,12 +63,10 @@ public class SingletonGestor {
     }
 
     /* ======================================================
-       MÉTODOS DA API (SIS - CRUD + Master/Detail)
+       GESTÃO DE SESSÃO (Token e ID) - [ALTERADO AQUI]
        ====================================================== */
 
-    private int userIdLogado = 0;
-
-    // Método para guardar o ID quando o login é feito com sucesso
+    // Guardar ID
     public void setUserIdLogado(int id) {
         this.userIdLogado = id;
     }
@@ -72,14 +75,37 @@ public class SingletonGestor {
         return userIdLogado;
     }
 
-    // 1. READ (Buscar todas as viagens)
+    // [NOVO] Guardar Token (Memória + Telemóvel)
+    public void setToken(String token) {
+        this.token = token;
+
+        // Guardar nas preferências do telemóvel para não perder se fechar a app
+        SharedPreferences prefs = context.getSharedPreferences("DADOS_TRIPPLAN", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("TOKEN_API", token);
+        editor.apply();
+    }
+
+    // [NOVO] Ler Token
+    public String getToken() {
+        // Se a variável estiver vazia, tenta ir buscar à memória do telemóvel
+        if (this.token == null) {
+            SharedPreferences prefs = context.getSharedPreferences("DADOS_TRIPPLAN", Context.MODE_PRIVATE);
+            this.token = prefs.getString("TOKEN_API", null);
+        }
+        return this.token;
+    }
+
+    /* ======================================================
+       MÉTODOS DA API
+       ====================================================== */
+
+    // 1. READ
     public void getAllViagensAPI() {
         if (!isInternetAvailable()) {
             Toast.makeText(context, "Sem internet", Toast.LENGTH_SHORT).show();
             return;
         }
-
-
 
         Call<List<Viagem>> call = apiService.getAllViagens(userIdLogado);
         call.enqueue(new Callback<List<Viagem>>() {
@@ -87,8 +113,6 @@ public class SingletonGestor {
             public void onResponse(Call<List<Viagem>> call, Response<List<Viagem>> response) {
                 if (response.isSuccessful()) {
                     viagens = (ArrayList<Viagem>) response.body();
-
-                    // Avisa a Activity para atualizar o ecrã
                     if (viagensListener != null) {
                         viagensListener.onRefreshLista(viagens);
                     }
@@ -102,7 +126,7 @@ public class SingletonGestor {
         });
     }
 
-    // 2. CREATE (Criar Viagem -> Dispara MQTT no servidor)
+    // 2. CREATE
     public void adicionarViagemAPI(Viagem viagem) {
         Call<Viagem> call = apiService.adicionarViagem(viagem);
         call.enqueue(new Callback<Viagem>() {
@@ -110,7 +134,7 @@ public class SingletonGestor {
             public void onResponse(Call<Viagem> call, Response<Viagem> response) {
                 if (response.isSuccessful()) {
                     Viagem nova = response.body();
-                    viagens.add(nova); // Adiciona à lista local
+                    viagens.add(nova);
                     Toast.makeText(context, "Viagem criada!", Toast.LENGTH_SHORT).show();
 
                     if (viagensListener != null) {
@@ -125,7 +149,7 @@ public class SingletonGestor {
         });
     }
 
-    // 3. MASTER/DETAIL (Buscar detalhes + transportes)
+    // 3. MASTER/DETAIL
     public void getViagemDetalhesAPI(int idViagem) {
         Call<Viagem> call = apiService.getViagemDetalhes(idViagem);
         call.enqueue(new Callback<Viagem>() {
@@ -133,10 +157,8 @@ public class SingletonGestor {
             public void onResponse(Call<Viagem> call, Response<Viagem> response) {
                 if (response.isSuccessful()) {
                     Viagem v = response.body();
-                    // Aqui podes abrir a Activity de Detalhes ou atualizar algo
                     Toast.makeText(context, "Detalhes carregados: " + v.getNomeViagem(), Toast.LENGTH_SHORT).show();
-                    // Exemplo: mostrar quantos transportes tem
-                    if (v   .getTransportes() != null) {
+                    if (v.getTransportes() != null) {
                         System.out.println("Transportes: " + v.getTransportes().size());
                     }
                 }
@@ -146,18 +168,21 @@ public class SingletonGestor {
         });
     }
 
-    // 4. LOGIN API (Autenticação Online)
+    // 4. LOGIN API
     public void loginAPI(String email, String password, final LoginListener loginListener) {
-        LoginRequest request = new LoginRequest(email, password); // Tens de ter este modelo criado
+        LoginRequest request = new LoginRequest(email, password);
         Call<LoginResponse> call = apiService.fazerLogin(request);
 
         call.enqueue(new Callback<LoginResponse>() {
             @Override
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    // Login Sucesso
-                    String token = response.body().getToken();
-                    // Podes guardar o token em SharedPreferences aqui se quiseres
+
+                    // [NOVO] Guardar automaticamente o token ao fazer login por aqui
+                    String tokenRecebido = response.body().getToken();
+                    setToken(tokenRecebido); // Usa o método novo que criámos
+                    setUserIdLogado(response.body().getId()); // Guarda o ID também
+
                     loginListener.onLoginSuccess();
                 } else {
                     loginListener.onLoginError("Dados inválidos");
@@ -170,20 +195,17 @@ public class SingletonGestor {
         });
     }
 
-    // Interface auxiliar para o Login
     public interface LoginListener {
         void onLoginSuccess();
         void onLoginError(String error);
     }
 
-    // Auxiliar simples para checar net (podes melhorar depois)
     private boolean isInternetAvailable() {
-        // Por agora retorna true, mas deves implementar o ConnectivityManager
         return true;
     }
 
     /* ======================================================
-       MÉTODOS DA BASE DE DADOS LOCAL (SQLITE) - JÁ EXISTENTES
+       MÉTODOS DA BASE DE DADOS LOCAL (SQLITE)
        ====================================================== */
 
     private void openDatabase(){
@@ -220,7 +242,7 @@ public class SingletonGestor {
             String nome = cursor.getString(cursor.getColumnIndexOrThrow(TripPlanBDHelper.NOME_USER));
             String tel = cursor.getString(cursor.getColumnIndexOrThrow(TripPlanBDHelper.TELEFONE_USER));
             String morada = cursor.getString(cursor.getColumnIndexOrThrow(TripPlanBDHelper.MORADA_USER));
-            user = new Utilizador((int)id, nome, email, password, tel, morada); // Ajustei o cast para int se necessário
+            user = new Utilizador((int)id, nome, email, password, tel, morada);
             cursor.close();
         }
         return user;
