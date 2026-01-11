@@ -3,6 +3,7 @@
 .gradle
 /local.properties
 /.idea/caches
+<<<<<<< Updated upstream
 /.idea/libraries
 /.idea/modules.xml
 /.idea/workspace.xml
@@ -16,6 +17,7 @@
 local.properties
 
 # --- Ficheiros gerados em cada módulo ---
+/build
 /app/build
 /app/captures
 
@@ -27,3 +29,6 @@ local.properties
 # google-services.json
 
 # NOTA: Nunca ignores ficheiros .java ou .xml do teu código fonte!
+=======
+app/src/main/java/pt/ipleiria/estg/dei/tripplan_android/api/ServiceBuilder.java
+>>>>>>> Stashed changes

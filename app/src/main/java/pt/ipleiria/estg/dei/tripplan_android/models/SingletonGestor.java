@@ -157,20 +157,27 @@ public class SingletonGestor {
 
     // 3. MASTER/DETAIL
     public void getViagemDetalhesAPI(int idViagem) {
+        if (!isInternetAvailable()) return;
+
         Call<Viagem> call = apiService.getViagemDetalhes(idViagem);
         call.enqueue(new Callback<Viagem>() {
             @Override
             public void onResponse(Call<Viagem> call, Response<Viagem> response) {
                 if (response.isSuccessful()) {
                     Viagem v = response.body();
-                    Toast.makeText(context, "Detalhes carregados: " + v.getNomeViagem(), Toast.LENGTH_SHORT).show();
-                    if (v.getTransportes() != null) {
-                        System.out.println("Transportes: " + v.getTransportes().size());
+                    // O texto só muda se esta linha for executada:
+                    if (detalhesListener != null) {
+                        detalhesListener.onViagemDetalhesCarregados(v);
                     }
+                } else {
+                    // Se a API der erro (ex: 404 ou 500), mostra um Toast para saberes
+                    Toast.makeText(context, "Erro API: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
             @Override
-            public void onFailure(Call<Viagem> call, Throwable t) { }
+            public void onFailure(Call<Viagem> call, Throwable t) {
+                Toast.makeText(context, "Erro ao carregar detalhes", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
@@ -401,4 +408,16 @@ public class SingletonGestor {
                 Toast.makeText(context, "Falha no envio: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+    private DetalhesListener detalhesListener; // <--- NOVO
+
+    public interface DetalhesListener {
+        void onViagemDetalhesCarregados(Viagem viagem);
+    }
+
+    public void setDetalhesListener(DetalhesListener listener) {
+        this.detalhesListener = listener;
+    }
+
+
 }
