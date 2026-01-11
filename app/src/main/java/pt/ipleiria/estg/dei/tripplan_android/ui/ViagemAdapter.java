@@ -26,7 +26,7 @@ public class ViagemAdapter extends RecyclerView.Adapter<ViagemAdapter.ViagemView
     public ViagemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         // Perfeito: a carregar o layout do cartão que criaste
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.activitiy_mostrar_viagem, parent, false);
+                .inflate(R.layout.activity_mostrar_viagem, parent, false);
         return new ViagemViewHolder(view);
     }
 

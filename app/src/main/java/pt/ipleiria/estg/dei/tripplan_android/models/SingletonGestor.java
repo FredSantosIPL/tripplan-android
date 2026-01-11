@@ -7,9 +7,13 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.widget.Toast;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import pt.ipleiria.estg.dei.tripplan_android.api.ServiceBuilder;
 import pt.ipleiria.estg.dei.tripplan_android.api.TripplanAPI;
 import retrofit2.Call;
@@ -48,6 +52,8 @@ public class SingletonGestor {
         }
         return instance;
     }
+
+
 
     // --- INTERFACE LISTENER ---
     public interface ViagensListener {
@@ -247,4 +253,152 @@ public class SingletonGestor {
         }
         return user;
     }
+
+    public void adicionarTransporteAPI(Transporte transporte) {
+        if (!isInternetAvailable()) return;
+
+        Call<Transporte> call = apiService.adicionarTransporte(transporte);
+        call.enqueue(new Callback<Transporte>() {
+            @Override
+            public void onResponse(Call<Transporte> call, Response<Transporte> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(context, "Transporte adicionado!", Toast.LENGTH_SHORT).show();
+                    // Aqui podes disparar um listener para atualizar a lista de detalhes
+                }
+            }
+            @Override
+            public void onFailure(Call<Transporte> call, Throwable t) {
+                Toast.makeText(context, "Erro: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    // --- DESTINOS ---
+    public void adicionarDestinoAPI(int idViagem, Destino destino) {
+        if (!isInternetAvailable()) return;
+
+        // NOTA: O backend precisa de saber que este destino pertence à viagem X.
+        // Se o modelo Destino não tiver campo "plano_viagem_id", o backend deve tratar disso
+        // ou terás de usar uma rota específica tipo "api/trips/{id}/destinos".
+        // Vou assumir o envio direto:
+
+        Call<Destino> call = apiService.adicionarDestino(destino);
+        call.enqueue(new Callback<Destino>() {
+            @Override
+            public void onResponse(Call<Destino> call, Response<Destino> response) {
+                if(response.isSuccessful()) {
+                    Toast.makeText(context, "Destino criado!", Toast.LENGTH_SHORT).show();
+                    // Aqui podes disparar um listener se quiseres atualizar a lista
+                }
+            }
+            @Override
+            public void onFailure(Call<Destino> call, Throwable t) {
+                Toast.makeText(context, "Erro: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    // --- ATIVIDADES ---
+    public void adicionarAtividadeAPI(Atividade atividade) {
+        if (!isInternetAvailable()) return;
+
+        Call<Atividade> call = apiService.adicionarAtividade(atividade);
+        call.enqueue(new Callback<Atividade>() {
+            @Override
+            public void onResponse(Call<Atividade> call, Response<Atividade> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(context, "Atividade adicionada!", Toast.LENGTH_SHORT).show();
+                }
+            }
+            @Override
+            public void onFailure(Call<Atividade> call, Throwable t) {
+                Toast.makeText(context, "Erro: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    // --- ESTADIAS ---
+    public void adicionarEstadiaAPI(Estadia estadia) {
+        if (!isInternetAvailable()) return;
+
+        Call<Estadia> call = apiService.adicionarEstadia(estadia);
+        call.enqueue(new Callback<Estadia>() {
+            @Override
+            public void onResponse(Call<Estadia> call, Response<Estadia> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(context, "Estadia reservada!", Toast.LENGTH_SHORT).show();
+                }
+            }
+            @Override
+            public void onFailure(Call<Estadia> call, Throwable t) {
+                Toast.makeText(context, "Erro: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    // --- FAVORITOS (LISTAGEM) ---
+    // Precisamos de um listener específico para receber a lista na Activity
+    private FavoritosListener favoritosListener;
+
+    public interface FavoritosListener {
+        void onRefreshFavoritos(ArrayList<Favorito> listaFavoritos);
+    }
+
+    public void setFavoritosListener(FavoritosListener listener) {
+        this.favoritosListener = listener;
+    }
+
+    public void getFavoritosAPI() {
+        if (!isInternetAvailable()) return;
+
+        Call<List<Favorito>> call = apiService.getFavoritos(userIdLogado);
+        call.enqueue(new Callback<List<Favorito>>() {
+            @Override
+            public void onResponse(Call<List<Favorito>> call, Response<List<Favorito>> response) {
+                if (response.isSuccessful()) {
+                    ArrayList<Favorito> favs = (ArrayList<Favorito>) response.body();
+                    if (favoritosListener != null) {
+                        favoritosListener.onRefreshFavoritos(favs);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Favorito>> call, Throwable t) {
+                Toast.makeText(context, "Erro ao buscar favoritos", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    // --- FOTOS ---
+    public void uploadFotoAPI(int idViagem, String comentarioTexto, File ficheiroImagem) {
+        if (!isInternetAvailable()) return;
+
+        // 1. Preparar os textos (RequestBody)
+        // O backend espera strings simples, por isso usamos text/plain
+        RequestBody idBody = RequestBody.create(MediaType.parse("text/plain"), String.valueOf(idViagem));
+        RequestBody comentarioBody = RequestBody.create(MediaType.parse("text/plain"), comentarioTexto);
+
+        // 2. Preparar o ficheiro (MultipartBody.Part)
+        // "image/*" diz ao servidor que é um ficheiro de imagem
+        RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), ficheiroImagem);
+        // "foto" é o nome do campo que o teu controlador PHP espera no $_FILES['foto']
+        MultipartBody.Part bodyFoto = MultipartBody.Part.createFormData("foto", ficheiroImagem.getName(), requestFile);
+
+        // 3. Fazer a chamada
+        Call<FotoMemoria> call = apiService.uploadFoto(idBody, comentarioBody, bodyFoto);
+        call.enqueue(new Callback<FotoMemoria>() {
+            @Override
+            public void onResponse(Call<FotoMemoria> call, Response<FotoMemoria> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(context, "Foto guardada com sucesso!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(context, "Erro no upload: " + response.code(), Toast.LENGTH_SHORT).show();
+                }
+            }
+            @Override
+            public void onFailure(Call<FotoMemoria> call, Throwable t) {
+                Toast.makeText(context, "Falha no envio: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
 }

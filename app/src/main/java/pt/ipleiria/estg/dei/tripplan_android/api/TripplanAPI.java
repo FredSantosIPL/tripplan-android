@@ -2,6 +2,13 @@ package pt.ipleiria.estg.dei.tripplan_android.api;
 
 import java.util.List;
 
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import pt.ipleiria.estg.dei.tripplan_android.models.Atividade;
+import pt.ipleiria.estg.dei.tripplan_android.models.Destino;
+import pt.ipleiria.estg.dei.tripplan_android.models.Estadia;
+import pt.ipleiria.estg.dei.tripplan_android.models.Favorito;
+import pt.ipleiria.estg.dei.tripplan_android.models.FotoMemoria;
 import pt.ipleiria.estg.dei.tripplan_android.models.LoginRequest;
 import pt.ipleiria.estg.dei.tripplan_android.models.LoginResponse;
 import pt.ipleiria.estg.dei.tripplan_android.models.Transporte;
@@ -10,8 +17,10 @@ import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;
+import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
+import retrofit2.http.Part;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
@@ -46,4 +55,37 @@ public interface TripplanAPI {
     /* --- TRANSPORTES --- */
     @POST("api/transportes")
     Call<Transporte> adicionarTransporte(@Body Transporte transporte);
+
+    /* --- DESTINOS --- */
+    @POST("api/destinos")
+    Call<Destino> adicionarDestino(@Body Destino destino);
+
+    /* --- ATIVIDADES --- */
+    @POST("api/atividades")
+    Call<Atividade> adicionarAtividade(@Body Atividade atividade);
+
+    /* --- ESTADIAS --- */
+    @POST("api/estadias")
+    Call<Estadia> adicionarEstadia(@Body Estadia estadia);
+
+    /* --- FAVORITOS --- */
+    // 1. Obter lista de favoritos do user (Podes passar o user_id ou usar o token)
+    @GET("api/favoritos")
+    Call<List<Favorito>> getFavoritos(@Query("user_id") int userId);
+
+    // 2. Adicionar um favorito
+    @POST("api/favoritos")
+    Call<Favorito> adicionarFavorito(@Body Favorito favorito);
+
+    // 3. Remover favorito (Opcional, mas útil)
+    @DELETE("api/favoritos/{id}")
+    Call<Void> removerFavorito(@Path("id") int id);
+
+    @Multipart
+    @POST("api/fotos_memorias") // Verifica a rota correta no teu Yii2
+    Call<FotoMemoria> uploadFoto(
+            @Part("plano_viagem_id") RequestBody idViagem,
+            @Part("comentario") RequestBody comentario,
+            @Part MultipartBody.Part ficheiroFoto // A imagem em si
+    );
 }
