@@ -18,36 +18,32 @@ import retrofit2.http.Query;
 public interface TripplanAPI {
 
     /* --- AUTENTICAÇÃO --- */
-    // NOTA: No Yii2, a rota de login geralmente não tem .php
-    // Se criaste um controlador "AuthController" com action "Login", a rota é "auth/login"
-    // Se estás a usar o standard do Yii2, confirma a rota correta. Vou assumir "login" ou "users/login".
     @POST("api/auth/login")
     Call<LoginResponse> fazerLogin(@Body LoginRequest request);
 
-    /* --- VIAGENS (CRUD COMPLETO) --- */
+    /* --- VIAGENS --- */
 
-    // 1. Ler todas (READ) - Rota automática do Yii2
-    @GET("api/trip")
+    // Listar todas
+    @GET("api/trips") // Geralmente o Yii2 usa plural para coleções
     Call<List<Viagem>> getAllViagens(@Query("user_id") int userId);
 
-    // 2. REQUISITO SIS: Master/Detail
-    // Chama a actionDetails($id) que definimos no teu TripController.php
-    @GET("trip/{id}/details")
+    // Detalhes (Master/Detail) - Adicionado o prefixo api/
+    @GET("api/trips/{id}/details")
     Call<Viagem> getViagemDetalhes(@Path("id") int id);
 
-    // 3. Criar (CREATE)
-    @POST("api/trip/create")  // <--- MUDAR DE "trip" PARA "api/trip"
+    // Criar (No REST padrão do Yii2, é apenas POST no endpoint base)
+    @POST("api/trips")
     Call<Viagem> adicionarViagem(@Body Viagem novaViagem);
 
-    // 4. Atualizar
-    @PUT("api/trip/{id}") // <--- Adiciona api/
+    // Atualizar
+    @PUT("api/trips/{id}")
     Call<Viagem> atualizarViagem(@Path("id") int id, @Body Viagem viagem);
 
-    // 5. Apagar
-    @DELETE("api/trip/{id}") // <--- Adiciona api/
+    // Apagar
+    @DELETE("api/trips/{id}")
     Call<Void> apagarViagem(@Path("id") int id);
 
-    @POST("api/transporte")
+    /* --- TRANSPORTES --- */
+    @POST("api/transportes")
     Call<Transporte> adicionarTransporte(@Body Transporte transporte);
-
 }

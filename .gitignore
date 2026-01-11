@@ -1,1 +1,29 @@
+# --- Android / Gradle Build ---
+*.iml
+.gradle
+/local.properties
 /.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# --- Ficheiros gerados em cada módulo ---
+/app/build
+/app/captures
+
+# --- Keystores (Segurança) ---
+*.jks
+*.keystore
+
+# --- Google Services (Se usares Firebase depois) ---
+# google-services.json
+
+# NOTA: Nunca ignores ficheiros .java ou .xml do teu código fonte!
