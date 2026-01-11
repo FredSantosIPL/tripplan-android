@@ -18,7 +18,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Tripplanandroid"
         android:usesCleartextTraffic="true">
-
+        <activity
+            android:name=".DetalhesViagemActivity"
+            android:exported="false" />
         <activity
             android:name=".ui.CriarViagemActivity"
             android:exported="false" />

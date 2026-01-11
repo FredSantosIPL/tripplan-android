@@ -22,9 +22,9 @@ import pt.ipleiria.estg.dei.tripplan_android.api.TripplanAPI;
 import pt.ipleiria.estg.dei.tripplan_android.models.SingletonGestor;
 import pt.ipleiria.estg.dei.tripplan_android.models.Viagem;
 import pt.ipleiria.estg.dei.tripplan_android.ui.CriarViagemActivity;
-import pt.ipleiria.estg.dei.tripplan_android.ui.ViagemAdapter; // Confirmar se o teu ficheiro tem "s" no nome
+import pt.ipleiria.estg.dei.tripplan_android.ui.ViagemAdapter;
 
-// IMPORTS DO RETROFIT (Cura os erros vermelhos da imagem 9)
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -32,7 +32,7 @@ import retrofit2.Response;
 public class MainActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
-    private ViagemAdapter adapter; // Se o teu ficheiro for ViagemAdapter, remove o 's'
+    private ViagemAdapter adapter;
     private List<Viagem> listaDeViagens;
 
     @Override
@@ -41,26 +41,22 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-
-
-        // 1. Inicializar a lista vazia (o onResume carregará os dados da API)
+        // 1. Iniciar a lista vazia
         listaDeViagens = new ArrayList<>();
 
-        // 2. Configurar o RecyclerView
         recyclerView = findViewById(R.id.recyclerViewViagens);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new ViagemAdapter(listaDeViagens);
+        adapter = new ViagemAdapter(this, listaDeViagens);
         recyclerView.setAdapter(adapter);
 
-        // 3. Configurar o Botão para abrir CriarViagemActivity
+
         View btnCriar = findViewById(R.id.fabAdicionar);
-        btnCriar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        if (btnCriar != null) {
+            btnCriar.setOnClickListener(v -> {
                 Intent intent = new Intent(MainActivity.this, CriarViagemActivity.class);
                 startActivity(intent);
-            }
-        });
+            });
+        }
     }
 
     @Override
@@ -85,7 +81,17 @@ public class MainActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     // Limpa a lista antiga e mete a nova que veio da API [cite: 13]
                     listaDeViagens.clear();
-                    listaDeViagens.addAll(response.body());
+
+                    int meuId = SingletonGestor.getInstance(MainActivity.this).getUserIdLogado();
+
+                    for (Viagem v : response.body()) {
+                        // Só adiciona se o ID do criador da viagem for igual ao MEU ID
+                        // CONFIRMA: O método pode ser v.getUserId(), v.getIdUser() ou v.getUser_id()
+                        if (v.getUserId() == meuId) {
+                            listaDeViagens.add(v);
+                        }
+                    }
+
                     adapter.notifyDataSetChanged();
                 } else {
                     Toast.makeText(MainActivity.this, "Erro na API: " + response.code(), Toast.LENGTH_SHORT).show();

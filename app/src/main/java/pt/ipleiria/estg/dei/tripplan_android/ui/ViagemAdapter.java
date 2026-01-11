@@ -1,30 +1,35 @@
 package pt.ipleiria.estg.dei.tripplan_android.ui;
 
+import android.content.Context; // <--- Importante
+import android.content.Intent; // <--- Importante
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.widget.Button; // <--- Importante
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
-import pt.ipleiria.estg.dei.tripplan_android.models.Viagem;
-
-// Se o "R" ficar vermelho, adiciona esta linha (troca pelo nome do TEU pacote se for diferente)
 import pt.ipleiria.estg.dei.tripplan_android.R;
+import pt.ipleiria.estg.dei.tripplan_android.models.Viagem;
+import pt.ipleiria.estg.dei.tripplan_android.DetalhesViagemActivity; // Confirma se o nome está certo
 
 public class ViagemAdapter extends RecyclerView.Adapter<ViagemAdapter.ViagemViewHolder> {
 
     private List<Viagem> listaViagens;
+    private Context context; // <--- 1. Adicionado para abrir a nova Activity
 
-    public ViagemAdapter(List<Viagem> listaViagens) {
+    // 2. Atualizei o construtor para receber o Context
+    public ViagemAdapter(Context context, List<Viagem> listaViagens) {
+        this.context = context;
         this.listaViagens = listaViagens;
     }
 
     @NonNull
     @Override
     public ViagemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Perfeito: a carregar o layout do cartão que criaste
+        // 3. CORREÇÃO: Aqui tens de usar o 'item_viagem' (o desenho da linha),
+        // senão ele tenta meter uma activity inteira dentro de outra.
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.activity_mostrar_viagem, parent, false);
         return new ViagemViewHolder(view);
@@ -34,12 +39,21 @@ public class ViagemAdapter extends RecyclerView.Adapter<ViagemAdapter.ViagemView
     public void onBindViewHolder(@NonNull ViagemViewHolder holder, int position) {
         Viagem viagemAtual = listaViagens.get(position);
 
-        // Aqui juntas o Título com a Data. Ex: "Férias em Paris, 12/05/2024"
-        holder.textNomeCidade.setText(viagemAtual.getNomeViagem() + ", " + viagemAtual.getDataInicio());
+        // 1. CORREÇÃO AQUI: Usar getNomeViagem()
+        holder.textNomeCidade.setText(viagemAtual.getNomeViagem());
 
-        // Nota: A imagem vai aparecer sempre a mesma (a que puseste no XML)
-        // porque ainda não estamos a mudar a imagem aqui via código.
-        // Para já serve perfeitamente para testar o visual!
+        // (Opcional) Se quiseres mostrar a data também:
+        // holder.textData.setText(viagemAtual.getDataInicio());
+
+        // --- LÓGICA DO BOTÃO VER ---
+        holder.btnVer.setOnClickListener(v -> {
+            Intent intent = new Intent(context, DetalhesViagemActivity.class);
+
+            // 2. Passar o ID (isto já estava correto porque tens o getId())
+            intent.putExtra("VIAGEM_ID", viagemAtual.getId());
+
+            context.startActivity(intent);
+        });
     }
 
     @Override
@@ -50,14 +64,14 @@ public class ViagemAdapter extends RecyclerView.Adapter<ViagemAdapter.ViagemView
     public static class ViagemViewHolder extends RecyclerView.ViewHolder {
 
         TextView textNomeCidade;
-        ImageView imageCidade;
+        TextView btnVer;
 
         public ViagemViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            textNomeCidade = itemView.findViewById(R.id.textTituloViagem);
-            //imageCidade = itemView.findViewById(R.id.imageCidade);
-
+            // Confirma se estes IDs estão no teu 'item_viagem.xml'
+            textNomeCidade = itemView.findViewById(R.id.textTituloViagem); // Mudei para txtDestino (comum no item_viagem)
+            btnVer = itemView.findViewById(R.id.btnVer); // <--- 5. Ligação do botão
         }
     }
 }
