@@ -1,50 +1,47 @@
 package pt.ipleiria.estg.dei.tripplan_android.models;
 
 import com.google.gson.annotations.SerializedName;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.Serializable;
+import java.util.ArrayList; // <--- Não esquecer este import
 
-public class Viagem {
-
-    @SerializedName("id")
+public class Viagem implements Serializable {
     private int id;
 
-    // Na BD é 'user_id', no Java é 'userId'
-    @SerializedName("user_id")
+    @SerializedName("user_id") // Ou utilizador_id, confirma com a tua BD
     private int userId;
 
-    // Na BD é 'nome_viagem', no Java é 'nomeViagem'
     @SerializedName("nome_viagem")
     private String nomeViagem;
 
-    // Na BD é 'data_inicio', no Java é 'dataInicio'
     @SerializedName("data_inicio")
     private String dataInicio;
 
-    // Na BD é 'data_fim', no Java é 'dataFim'
     @SerializedName("data_fim")
     private String dataFim;
 
-    private List<Transporte> transportes;
+    // --- LISTAS PARA OS DETALHES (Master/Detail) ---
+    // O @SerializedName deve ser igual à chave do JSON que a API devolve (ex: 'transportes', 'destinos')
 
-    // --- CONSTRUTORES ---
+    @SerializedName("transportes")
+    private ArrayList<Transporte> transportes;
 
+    @SerializedName("destinos") // <--- O CAMPO QUE FALTAVA
+    private ArrayList<Destino> destinos;
+
+    // --- CONSTRUTOR ---
     public Viagem(int id, int userId, String nomeViagem, String dataInicio, String dataFim) {
         this.id = id;
         this.userId = userId;
         this.nomeViagem = nomeViagem;
         this.dataInicio = dataInicio;
         this.dataFim = dataFim;
-        this.transportes = new ArrayList<>();
-    }
 
-    // Construtor simples (útil para testes)
-    public Viagem(String nomeViagem, String dataInicio, String dataFim) {
-        this(0, 0, nomeViagem, dataInicio, dataFim);
+        // Inicializar listas vazias para evitar NullPointerException se a API não enviar nada
+        this.transportes = new ArrayList<>();
+        this.destinos = new ArrayList<>();
     }
 
     // --- GETTERS E SETTERS ---
-    // Podes manter os nomes dos Getters/Setters como tinhas, o Gson trata do resto!
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
@@ -61,6 +58,34 @@ public class Viagem {
     public String getDataFim() { return dataFim; }
     public void setDataFim(String dataFim) { this.dataFim = dataFim; }
 
-    public List<Transporte> getTransportes() { return transportes; }
-    public void setTransportes(List<Transporte> transportes) { this.transportes = transportes; }
+    // --- GETTERS E SETTERS DAS LISTAS ---
+
+    public ArrayList<Transporte> getTransportes() {
+        // Se for null (porque a API de listagem não enviou), devolve lista vazia
+        if (transportes == null) {
+            return new ArrayList<>();
+        }
+        return transportes;
+    }
+
+    public void setTransportes(ArrayList<Transporte> transportes) {
+        this.transportes = transportes;
+    }
+
+    public ArrayList<Destino> getDestinos() {
+        // Se for null, devolve lista vazia para não dar erro no size()
+        if (destinos == null) {
+            return new ArrayList<>();
+        }
+        return destinos;
+    }
+
+    public void setDestinos(ArrayList<Destino> destinos) {
+        this.destinos = destinos;
+    }
+
+    @Override
+    public String toString() {
+        return nomeViagem;
+    }
 }

@@ -21,6 +21,34 @@
         <activity
             android:name=".DetalhesViagemActivity"
             android:exported="false" />
+        <activity android:name=".ui.AdicionarDestinoActivity"
+            android:exported="false"
+            android:label="Novo Destino"/>
+
+        <activity android:name=".ui.AdicionarTransporteActivity"
+            android:exported="false"
+            android:label="Novo Transporte"/>
+
+        <activity android:name=".ui.AdicionarEstadiaActivity"
+            android:exported="false"
+            android:label="Nova Estadia"/>
+
+        <activity android:name=".ui.AdicionarAtividadeActivity"
+            android:exported="false"
+            android:label="Nova Atividade"/>
+
+        <activity android:name=".ui.AdicionarFotoActivity"
+            android:exported="false"
+            android:label="Nova Foto"/>
+
+        <activity android:name=".ui.FavoritosActivity"
+            android:exported="false"
+            android:label="Favoritos"/>
+
+        <activity android:name=".ui.PerfilActivity"
+            android:exported="false"
+            android:label="Perfil"/>
+
         <activity
             android:name=".ui.CriarViagemActivity"
             android:exported="false" />

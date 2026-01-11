@@ -37,7 +37,8 @@ public interface TripplanAPI {
     Call<List<Viagem>> getAllViagens(@Query("user_id") int userId);
 
     // Detalhes (Master/Detail) - Adicionado o prefixo api/
-    @GET("api/trips/{id}/details")
+    // O ?expand diz ao backend para incluir as listas associadas (confirma se no PHP se chamam 'destinos' e 'transportes')
+    @GET("api/trips/{id}?expand=destinos,transportes")
     Call<Viagem> getViagemDetalhes(@Path("id") int id);
 
     // Criar (No REST padrão do Yii2, é apenas POST no endpoint base)

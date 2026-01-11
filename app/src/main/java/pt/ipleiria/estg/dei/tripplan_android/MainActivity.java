@@ -14,6 +14,8 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +24,8 @@ import pt.ipleiria.estg.dei.tripplan_android.api.TripplanAPI;
 import pt.ipleiria.estg.dei.tripplan_android.models.SingletonGestor;
 import pt.ipleiria.estg.dei.tripplan_android.models.Viagem;
 import pt.ipleiria.estg.dei.tripplan_android.ui.CriarViagemActivity;
+import pt.ipleiria.estg.dei.tripplan_android.ui.FavoritosActivity;
+import pt.ipleiria.estg.dei.tripplan_android.ui.PerfilActivity;
 import pt.ipleiria.estg.dei.tripplan_android.ui.ViagemAdapter;
 
 
@@ -57,6 +61,31 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             });
         }
+
+        BottomNavigationView bottomNav = findViewById(R.id.bottomNavigation);
+        bottomNav.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+
+            if (itemId == R.id.nav_home) {
+                // Já estamos na Home
+                return true;
+            }
+            else if (itemId == R.id.nav_favorites) {
+                startActivity(new Intent(getApplicationContext(), FavoritosActivity.class));
+                return true;
+            }
+            else if (itemId == R.id.nav_profile) {
+                startActivity(new Intent(getApplicationContext(), PerfilActivity.class));
+                return true;
+            }
+            else if (itemId == R.id.nav_trips) {
+                // Se quiseres navegar para uma lista de viagens separada
+                // startActivity(new Intent(getApplicationContext(), AsMinhasViagensActivity.class));
+                return true;
+            }
+
+            return false;
+        });
     }
 
     @Override

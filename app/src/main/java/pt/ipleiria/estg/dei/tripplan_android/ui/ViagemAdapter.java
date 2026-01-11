@@ -28,10 +28,9 @@ public class ViagemAdapter extends RecyclerView.Adapter<ViagemAdapter.ViagemView
     @NonNull
     @Override
     public ViagemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // 3. CORREÇÃO: Aqui tens de usar o 'item_viagem' (o desenho da linha),
-        // senão ele tenta meter uma activity inteira dentro de outra.
+
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.activity_mostrar_viagem, parent, false);
+                .inflate(R.layout.item_viagem, parent, false);
         return new ViagemViewHolder(view);
     }
 
