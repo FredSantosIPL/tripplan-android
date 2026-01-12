@@ -19,7 +19,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Nova Atividade"
+            android:text="Nova Estadia"
             android:textColor="@android:color/white"
             android:textSize="22sp"
             android:textStyle="bold"/>
@@ -27,7 +27,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="O que vais visitar ou fazer?"
+            android:text="Onde vais ficar?"
             android:textColor="#E0E0E0"
             android:textSize="12sp"
             android:layout_marginTop="4dp"/>
@@ -64,23 +64,28 @@
             android:textStyle="bold"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
+
         <EditText
             android:id="@+id/etCheckIn"
-            android:hint="AAAA-MM-DD"
-            android:inputType="date"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:hint="Toque para selecionar data"
+            android:focusable="false"
+            android:clickable="true"
+            android:inputType="none"
+            android:drawableEnd="@android:drawable/ic_menu_my_calendar"
+            android:drawableTint="#0099ff"
             android:layout_marginBottom="16dp"/>
 
         <TextView
-            android:text="Morada / Link Maps"
+            android:text="Tipo de Alojamento"
             android:textColor="#0099ff"
             android:textStyle="bold"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
         <EditText
             android:id="@+id/etMorada"
-            android:hint="Rua..."
+            android:hint="Ex: Hotel, Airbnb, Hostel..."
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"/>

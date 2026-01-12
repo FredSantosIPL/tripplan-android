@@ -333,12 +333,23 @@ public class SingletonGestor {
             @Override
             public void onResponse(Call<Estadia> call, Response<Estadia> response) {
                 if (response.isSuccessful()) {
-                    Toast.makeText(context, "Estadia reservada!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Estadia reservada com sucesso!", Toast.LENGTH_SHORT).show();
+                    System.out.println("--> SUCESSO: Estadia criada com ID: " + response.body().getId());
+                } else {
+                    // AQUI ESTÁ O SEGREDO: Ler o corpo do erro
+                    try {
+                        String erroApi = response.errorBody().string();
+                        System.out.println("--> ERRO API (Código " + response.code() + "): " + erroApi);
+                        Toast.makeText(context, "Erro: " + response.code(), Toast.LENGTH_SHORT).show();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
             @Override
             public void onFailure(Call<Estadia> call, Throwable t) {
-                Toast.makeText(context, "Erro: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Falha de Rede: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                t.printStackTrace(); // Imprime o erro completo no Logcat
             }
         });
     }

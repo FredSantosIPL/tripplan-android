@@ -6,7 +6,10 @@ import java.io.Serializable;
 public class Destino implements Serializable {
     private int id;
 
-    // No DER existe este campo. Se não for usado, envia 0 ou o ID do user.
+    // --- CAMPO NOVO IMPORTANTE ---
+    @SerializedName("plano_viagem_id")
+    private int planoViagemId;
+
     @SerializedName("agente_viagem_id")
     private int agenteViagemId;
 
@@ -15,12 +18,13 @@ public class Destino implements Serializable {
 
     private String pais;
 
-    @SerializedName("data_chegada") // Formato: AAAA-MM-DD
+    @SerializedName("data_chegada")
     private String dataChegada;
 
-    // Construtor
-    public Destino(int id, int agenteViagemId, String nomeCidade, String pais, String dataChegada) {
+    // Construtor Atualizado
+    public Destino(int id, int planoViagemId, int agenteViagemId, String nomeCidade, String pais, String dataChegada) {
         this.id = id;
+        this.planoViagemId = planoViagemId; // Recebe o ID da Viagem
         this.agenteViagemId = agenteViagemId;
         this.nomeCidade = nomeCidade;
         this.pais = pais;
@@ -30,6 +34,9 @@ public class Destino implements Serializable {
     // Getters e Setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
+
+    public int getPlanoViagemId() { return planoViagemId; }
+    public void setPlanoViagemId(int planoViagemId) { this.planoViagemId = planoViagemId; }
 
     public int getAgenteViagemId() { return agenteViagemId; }
     public void setAgenteViagemId(int agenteViagemId) { this.agenteViagemId = agenteViagemId; }
@@ -42,9 +49,4 @@ public class Destino implements Serializable {
 
     public String getDataChegada() { return dataChegada; }
     public void setDataChegada(String dataChegada) { this.dataChegada = dataChegada; }
-
-    @Override
-    public String toString() {
-        return nomeCidade + ", " + pais;
-    }
 }

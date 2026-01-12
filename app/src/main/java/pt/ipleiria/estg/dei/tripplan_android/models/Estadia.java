@@ -6,33 +6,40 @@ import java.io.Serializable;
 public class Estadia implements Serializable {
     private int id;
 
-    // NO DER: A estadia liga-se a um Destino
     @SerializedName("destino_id")
     private int destinoId;
+
+    // NOVO CAMPO: Para ativarmos a lógica inteligente no PHP
+    @SerializedName("plano_viagem_id")
+    private int planoViagemId;
 
     @SerializedName("nome_alojamento")
     private String nomeAlojamento;
 
-    private String tipo; // Ex: Hotel, Airbnb, Hostel
+    private String tipo;
 
-    @SerializedName("data_checkin") // DATETIME na BD
+    @SerializedName("data_checkin")
     private String dataCheckin;
 
-    // Construtor
-    public Estadia(int id, int destinoId, String nomeAlojamento, String tipo, String dataCheckin) {
+    // Construtor Atualizado
+    public Estadia(int id, int planoViagemId, String nomeAlojamento, String tipo, String dataCheckin) {
         this.id = id;
-        this.destinoId = destinoId;
+        this.destinoId = 0; // Enviamos 0 para o PHP saber que tem de procurar o destino sozinho
+        this.planoViagemId = planoViagemId; // Aqui vai o ID da Viagem
         this.nomeAlojamento = nomeAlojamento;
         this.tipo = tipo;
         this.dataCheckin = dataCheckin;
     }
 
-    // Getters e Setters
+    // --- GETTERS E SETTERS ---
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
     public int getDestinoId() { return destinoId; }
     public void setDestinoId(int destinoId) { this.destinoId = destinoId; }
+
+    public int getPlanoViagemId() { return planoViagemId; }
+    public void setPlanoViagemId(int planoViagemId) { this.planoViagemId = planoViagemId; }
 
     public String getNomeAlojamento() { return nomeAlojamento; }
     public void setNomeAlojamento(String nomeAlojamento) { this.nomeAlojamento = nomeAlojamento; }

@@ -37,8 +37,8 @@ public interface TripplanAPI {
     Call<List<Viagem>> getAllViagens(@Query("user_id") int userId);
 
     // Detalhes (Master/Detail) - Adicionado o prefixo api/
-    // O ?expand diz ao backend para incluir as listas associadas (confirma se no PHP se chamam 'destinos' e 'transportes')
-    @GET("api/trips/{id}?expand=destinos,transportes")
+    // O ?expand diz ao backend para incluir as listas associadas (confirma se no PHP se chamam 'destino' e 'transporte')
+    @GET("api/trips/{id}?expand=destino,transporte")
     Call<Viagem> getViagemDetalhes(@Path("id") int id);
 
     // Criar (No REST padrão do Yii2, é apenas POST no endpoint base)
@@ -53,20 +53,20 @@ public interface TripplanAPI {
     @DELETE("api/trips/{id}")
     Call<Void> apagarViagem(@Path("id") int id);
 
-    /* --- TRANSPORTES --- */
-    @POST("api/transportes")
+    /* --- transporte --- */
+    @POST("api/transporte")
     Call<Transporte> adicionarTransporte(@Body Transporte transporte);
 
-    /* --- DESTINOS --- */
-    @POST("api/destinos")
+    /* --- destino --- */
+    @POST("api/destino")
     Call<Destino> adicionarDestino(@Body Destino destino);
 
-    /* --- ATIVIDADES --- */
-    @POST("api/atividades")
+    /* --- atividade --- */
+    @POST("api/atividade")
     Call<Atividade> adicionarAtividade(@Body Atividade atividade);
 
-    /* --- ESTADIAS --- */
-    @POST("api/estadias")
+    /* --- estadia --- */
+    @POST("api/estadia")
     Call<Estadia> adicionarEstadia(@Body Estadia estadia);
 
     /* --- FAVORITOS --- */
