@@ -2,7 +2,6 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F5F5F5">
@@ -15,8 +14,7 @@
         android:orientation="vertical"
         android:padding="20dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintStart_toStartOf="parent">
 
         <TextView
             android:layout_width="wrap_content"
@@ -29,7 +27,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Preenche os detalhes da viagem."
+            android:text="Como vais viajar?"
             android:textColor="#E0E0E0"
             android:textSize="12sp"
             android:layout_marginTop="4dp"/>
@@ -51,60 +49,64 @@
             android:elevation="4dp">
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:text="Tipo de Transporte"
                 android:textColor="#0099ff"
-                android:textStyle="bold"/>
-            <EditText
-                android:id="@+id/etTipoTransporte"
+                android:textStyle="bold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <Spinner
+                android:id="@+id/spTipoTransporte"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Ex: Avião, Comboio, Uber"
-                android:inputType="text"
-                android:layout_marginBottom="16dp"/>
+                android:layout_height="50dp"
+                android:layout_marginBottom="16dp"
+                android:spinnerMode="dropdown"/>
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:text="Origem"
                 android:textColor="#0099ff"
-                android:textStyle="bold"/>
+                android:textStyle="bold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
             <EditText
                 android:id="@+id/etOrigem"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="De onde sais?"
-                android:inputType="text"
                 android:layout_marginBottom="16dp"/>
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:text="Destino"
                 android:textColor="#0099ff"
-                android:textStyle="bold"/>
+                android:textStyle="bold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
             <EditText
                 android:id="@+id/etDestino"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Para onde vais?"
-                android:inputType="text"
                 android:layout_marginBottom="16dp"/>
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Data e Hora"
+                android:text="Data de Partida"
                 android:textColor="#0099ff"
-                android:textStyle="bold"/>
+                android:textStyle="bold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
             <EditText
                 android:id="@+id/etDataPartida"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="AAAA-MM-DD HH:MM:SS"
-                android:inputType="datetime"
+                android:hint="Toque para selecionar data"
+                android:focusable="false"
+                android:clickable="true"
+                android:inputType="none"
+                android:drawableEnd="@android:drawable/ic_menu_my_calendar"
+                android:drawableTint="#0099ff"
                 android:layout_marginBottom="24dp"/>
+
             <Button
                 android:id="@+id/btnGuardarTransporte"
                 android:layout_width="match_parent"
@@ -116,5 +118,4 @@
 
         </LinearLayout>
     </ScrollView>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

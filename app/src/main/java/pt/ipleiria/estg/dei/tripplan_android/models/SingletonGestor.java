@@ -325,17 +325,38 @@ public class SingletonGestor {
     public void adicionarAtividadeAPI(Atividade atividade) {
         if (!isInternetAvailable()) return;
 
+        // 1. ESPREITAR O QUE VAMOS ENVIAR
+        System.out.println("--> ZECA_DEBUG: A enviar Atividade...");
+        System.out.println("--> ZECA_DEBUG: Dados: " + atividade.toString());
+
         Call<Atividade> call = apiService.adicionarAtividade(atividade);
         call.enqueue(new Callback<Atividade>() {
             @Override
             public void onResponse(Call<Atividade> call, Response<Atividade> response) {
                 if (response.isSuccessful()) {
+                    Atividade resposta = response.body();
+                    // 2. ESPREITAR O QUE O SERVIDOR RESPONDEU
+                    System.out.println("--> ZECA_DEBUG: Sucesso! O servidor gravou isto:");
+                    if (resposta != null) {
+                        System.out.println("--> ZECA_DEBUG: Resposta: " + resposta.toString());
+                    } else {
+                        System.out.println("--> ZECA_DEBUG: Resposta veio vazia (null)!");
+                    }
+
                     Toast.makeText(context, "Atividade adicionada!", Toast.LENGTH_SHORT).show();
+                } else {
+                    // 3. ESPREITAR SE HOUVE ERRO ESCONDIDO
+                    try {
+                        System.out.println("--> ZECA_DEBUG: Erro API " + response.code() + ": " + response.errorBody().string());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
+
             @Override
             public void onFailure(Call<Atividade> call, Throwable t) {
-                Toast.makeText(context, "Erro: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                System.out.println("--> ZECA_DEBUG: Falha Total: " + t.getMessage());
             }
         });
     }
@@ -405,33 +426,57 @@ public class SingletonGestor {
     }
 
     // --- FOTOS ---
+    // --- FOTOS (COM LOGS DETALHADOS) ---
     public void uploadFotoAPI(int idViagem, String comentarioTexto, File ficheiroImagem) {
         if (!isInternetAvailable()) return;
 
-        // 1. Preparar os textos (RequestBody)
-        // O backend espera strings simples, por isso usamos text/plain
+        // 1. Preparar os dados
+        int idUser = getUserIdLogado();
+
         RequestBody idBody = RequestBody.create(MediaType.parse("text/plain"), String.valueOf(idViagem));
         RequestBody comentarioBody = RequestBody.create(MediaType.parse("text/plain"), comentarioTexto);
 
-        // 2. Preparar o ficheiro (MultipartBody.Part)
-        // "image/*" diz ao servidor que é um ficheiro de imagem
+        // Novo RequestBody para o ID do User
+        RequestBody userBody = RequestBody.create(MediaType.parse("text/plain"), String.valueOf(idUser));
+
         RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), ficheiroImagem);
-        // "foto" é o nome do campo que o teu controlador PHP espera no $_FILES['foto']
         MultipartBody.Part bodyFoto = MultipartBody.Part.createFormData("foto", ficheiroImagem.getName(), requestFile);
 
-        // 3. Fazer a chamada
-        Call<FotoMemoria> call = apiService.uploadFoto(idBody, comentarioBody, bodyFoto);
+        System.out.println("--> A ENVIAR FOTO... User: " + idUser + " | Viagem: " + idViagem);
+
+        // 2. Enviar tudo (incluindo o userBody)
+        Call<FotoMemoria> call = apiService.uploadFoto(idBody, comentarioBody, userBody, bodyFoto);
+
         call.enqueue(new Callback<FotoMemoria>() {
             @Override
             public void onResponse(Call<FotoMemoria> call, Response<FotoMemoria> response) {
                 if (response.isSuccessful()) {
-                    Toast.makeText(context, "Foto guardada com sucesso!", Toast.LENGTH_SHORT).show();
+                    // O servidor aceitou (Código 200-299)
+                    if (response.body() != null) {
+                        System.out.println("--> SUCESSO! Resposta do Servidor: " + response.body().toString());
+                        // Se o modelo FotoMemoria tiver getters, podes imprimir:
+                        // System.out.println("--> ID Criado: " + response.body().getId());
+                        Toast.makeText(context, "Foto guardada com sucesso!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        System.out.println("--> SUCESSO ESTRANHO: O corpo da resposta veio vazio (null).");
+                    }
                 } else {
-                    Toast.makeText(context, "Erro no upload: " + response.code(), Toast.LENGTH_SHORT).show();
+                    // O servidor recusou (Erro 400, 404, 500...)
+                    try {
+                        String erroApi = response.errorBody().string();
+                        System.out.println("--> ERRO API (Código " + response.code() + "): " + erroApi);
+                        Toast.makeText(context, "Erro no upload: " + response.code(), Toast.LENGTH_SHORT).show();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
+
             @Override
             public void onFailure(Call<FotoMemoria> call, Throwable t) {
+                // Erro de rede ou conversão de dados
+                System.out.println("--> FALHA FATAL: " + t.getMessage());
+                t.printStackTrace(); // Isto vai mostrar o erro completo no Logcat
                 Toast.makeText(context, "Falha no envio: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });

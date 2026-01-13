@@ -90,10 +90,11 @@ public interface TripplanAPI {
     Call<Void> removerFavorito(@Path("id") int id);
 
     @Multipart
-    @POST("api/fotos_memorias") // Verifica a rota correta no teu Yii2
+    @POST("api/fotos-memorias")
     Call<FotoMemoria> uploadFoto(
             @Part("plano_viagem_id") RequestBody idViagem,
             @Part("comentario") RequestBody comentario,
-            @Part MultipartBody.Part ficheiroFoto // A imagem em si
+            @Part("user_id") RequestBody userId,
+            @Part MultipartBody.Part foto
     );
 }

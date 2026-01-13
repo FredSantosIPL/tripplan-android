@@ -5,7 +5,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import pt.ipleiria.estg.dei.tripplan_android.R;
-import pt.ipleiria.estg.dei.tripplan_android.models.Atividade; // Cria este modelo!
+import pt.ipleiria.estg.dei.tripplan_android.models.Atividade;
 import pt.ipleiria.estg.dei.tripplan_android.models.SingletonGestor;
 
 public class AdicionarAtividadeActivity extends AppCompatActivity {
@@ -26,13 +26,21 @@ public class AdicionarAtividadeActivity extends AppCompatActivity {
             String nome = etNome.getText().toString();
             String tipo = etTipo.getText().toString();
 
-            if (nome.isEmpty()) {
-                Toast.makeText(this, "Escreve o nome!", Toast.LENGTH_SHORT).show();
+            if (nome.isEmpty() || tipo.isEmpty()) {
+                Toast.makeText(this, "Preenche todos os campos!", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // Cria o objeto (Ajusta o construtor ao teu modelo)
-            Atividade nova = new Atividade(0, idViagemAtual, nome, tipo);
+            // AQUI ESTÁ A CORREÇÃO:
+            // destino_id = 0 (Para o PHP ignorar e procurar sozinho)
+            // plano_viagem_id = idViagemAtual (Para o PHP saber onde procurar)
+            Atividade nova = new Atividade(
+                    0,
+                    0,              // destino_id
+                    idViagemAtual,  // plano_viagem_id
+                    nome,
+                    tipo
+            );
 
             // Chama a API
             SingletonGestor.getInstance(this).adicionarAtividadeAPI(nova);
