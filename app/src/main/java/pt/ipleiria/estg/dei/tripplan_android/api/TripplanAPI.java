@@ -11,7 +11,9 @@ import pt.ipleiria.estg.dei.tripplan_android.models.Favorito;
 import pt.ipleiria.estg.dei.tripplan_android.models.FotoMemoria;
 import pt.ipleiria.estg.dei.tripplan_android.models.LoginRequest;
 import pt.ipleiria.estg.dei.tripplan_android.models.LoginResponse;
+import pt.ipleiria.estg.dei.tripplan_android.models.RegisterRequest;
 import pt.ipleiria.estg.dei.tripplan_android.models.Transporte;
+import pt.ipleiria.estg.dei.tripplan_android.models.Utilizador;
 import pt.ipleiria.estg.dei.tripplan_android.models.Viagem;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -30,15 +32,20 @@ public interface TripplanAPI {
     @POST("api/auth/login")
     Call<LoginResponse> fazerLogin(@Body LoginRequest request);
 
+    @POST("api/auth/signup")
+    Call<Void> registarUtilizador(@Body RegisterRequest request);
+
     /* --- VIAGENS --- */
 
     // Listar todas
+
+
     @GET("api/trips") // Geralmente o Yii2 usa plural para coleções
     Call<List<Viagem>> getAllViagens(@Query("user_id") int userId);
 
     // Detalhes (Master/Detail) - Adicionado o prefixo api/
     // O ?expand diz ao backend para incluir as listas associadas (confirma se no PHP se chamam 'destino' e 'transporte')
-    @GET("api/trips/{id}?expand=destino,transporte")
+    @GET("api/trips/{id}?expand=destino")
     Call<Viagem> getViagemDetalhes(@Path("id") int id);
 
     // Criar (No REST padrão do Yii2, é apenas POST no endpoint base)

@@ -1,12 +1,19 @@
-package pt.ipleiria.estg.dei.tripplan_android; // ou .ui se mudaste a pasta
+package pt.ipleiria.estg.dei.tripplan_android; // Mantém o teu package original
 
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.List;
+
+import pt.ipleiria.estg.dei.tripplan_android.models.Destino;
+import pt.ipleiria.estg.dei.tripplan_android.models.Estadia; // Importante
 import pt.ipleiria.estg.dei.tripplan_android.models.SingletonGestor;
 import pt.ipleiria.estg.dei.tripplan_android.models.Viagem;
 import pt.ipleiria.estg.dei.tripplan_android.ui.AdicionarAtividadeActivity;
@@ -17,16 +24,23 @@ import pt.ipleiria.estg.dei.tripplan_android.ui.AdicionarTransporteActivity;
 
 public class DetalhesViagemActivity extends AppCompatActivity implements SingletonGestor.DetalhesListener {
 
-    private TextView tvTitulo, tvDatas, tvResumo;
+    private TextView tvTitulo, tvDatas;
+    private LinearLayout llContainer; // A nossa "prateleira" de cartões
     private int idViagem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_detalhes_viagem); // Confirma se o nome do layout é este!
+        setContentView(R.layout.activity_detalhes_viagem);
 
-        // 1. Receber o ID
-        idViagem = getIntent().getIntExtra("VIAGEM_ID", -1); // Nota: Na MainActivity usaste "VIAGEM_ID" ou "ID_VIAGEM"? Tem de ser igual!
+        // 1. Receber o ID (ATENÇÃO: Usei "ID_VIAGEM" para ser igual ao MainActivity)
+        idViagem = getIntent().getIntExtra("ID_VIAGEM", -1);
+
+        // Se falhar o primeiro, tenta com o outro nome por segurança
+        if (idViagem == -1) {
+            idViagem = getIntent().getIntExtra("VIAGEM_ID", -1);
+        }
+
         if (idViagem == -1) {
             Toast.makeText(this, "Erro: Viagem não encontrada", Toast.LENGTH_SHORT).show();
             finish();
@@ -34,11 +48,13 @@ public class DetalhesViagemActivity extends AppCompatActivity implements Singlet
         }
 
         // 2. Ligar Views
-        tvTitulo = findViewById(R.id.txtDetalheTitulo); // Confirma os IDs no teu XML
+        tvTitulo = findViewById(R.id.txtDetalheTitulo);
         tvDatas = findViewById(R.id.txtDetalheDatas);
-        tvResumo = findViewById(R.id.txtListaDestinos);
 
-        // 3. Configurar Botões de Ação (Adicionar coisas)
+        // AQUI ESTÁ A MUDANÇA: Em vez de TextView, usamos o LinearLayout
+        llContainer = findViewById(R.id.llContainerDados);
+
+        // 3. Configurar Botões
         configurarBotoes();
 
         // 4. Pedir dados à API
@@ -49,14 +65,11 @@ public class DetalhesViagemActivity extends AppCompatActivity implements Singlet
     @Override
     protected void onResume() {
         super.onResume();
-        // Atualizar quando voltamos de um formulário de adição
+        // Recarregar dados quando voltamos de adicionar algo
         SingletonGestor.getInstance(this).getViagemDetalhesAPI(idViagem);
     }
 
     private void configurarBotoes() {
-        // Exemplo: Botão para Adicionar Transporte
-        // Tens de ter estes botões no teu layout XML ou criar um Floating Action Menu
-
         findViewById(R.id.btnAdicionarTransporte).setOnClickListener(v -> abrirActivity(AdicionarTransporteActivity.class));
         findViewById(R.id.btnAdicionarDestino).setOnClickListener(v -> abrirActivity(AdicionarDestinoActivity.class));
         findViewById(R.id.btnAdicionarEstadia).setOnClickListener(v -> abrirActivity(AdicionarEstadiaActivity.class));
@@ -66,21 +79,78 @@ public class DetalhesViagemActivity extends AppCompatActivity implements Singlet
 
     private void abrirActivity(Class<?> activityClass) {
         Intent intent = new Intent(this, activityClass);
-        intent.putExtra("ID_VIAGEM", idViagem); // Manda o ID para a próxima tela saber a quem adicionar
+        intent.putExtra("ID_VIAGEM", idViagem);
         startActivity(intent);
     }
 
     @Override
     public void onViagemDetalhesCarregados(Viagem viagem) {
         if (viagem != null) {
+            System.out.println("ZEZOCA_DEBUG: Viagem carregada: " + viagem.getNomeViagem());
+
+            // 1. Preencher Cabeçalho
             tvTitulo.setText(viagem.getNomeViagem());
-            tvDatas.setText(viagem.getDataInicio() + " - " + viagem.getDataFim());
+            tvDatas.setText(viagem.getDataInicio() + " até " + viagem.getDataFim());
 
-            // Resumo rápido (Idealmente usarias RecyclerViews para listar tudo)
-            String resumo = "Transportes: " + (viagem.getTransportes() != null ? viagem.getTransportes().size() : 0) + "\n" +
-                    "Destinos: " + (viagem.getDestinos() != null ? viagem.getDestinos().size() : 0);
+            // 2. Limpar a lista antiga
+            llContainer.removeAllViews();
 
-            tvResumo.setText(resumo);
+            // 3. Preencher DESTINOS
+            List<Destino> destinos = viagem.getDestinos();
+
+            // --- O ESPIÃO ESTÁ AQUI ---
+            if (destinos == null) {
+                System.out.println("ZEZOCA_DEBUG: A lista de destinos é NULL");
+            } else {
+                System.out.println("ZEZOCA_DEBUG: A lista tem " + destinos.size() + " destinos");
+            }
+            // --------------------------
+
+            if (destinos != null && !destinos.isEmpty()) {
+                adicionarTituloSeccao("DESTINOS");
+                for (Destino d : destinos) {
+                    System.out.println("ZEZOCA_DEBUG: A criar card para " + d.getNomeCidade());
+                    criarCartao(d.getNomeCidade(), d.getPais() + " | " + d.getDataChegada());
+                }
+            } else {
+                adicionarAvisoVazio("Sem destinos adicionados.");
+            }
+        } else {
+            System.out.println("ZEZOCA_DEBUG: A Viagem veio NULL");
         }
     }
+
+    private void criarCartao(String titulo, String descricao) {
+        // Usa o layout 'item_simples.xml' que criámos no passo anterior
+        View cardView = LayoutInflater.from(this).inflate(R.layout.item_simples, llContainer, false);
+
+        TextView tvTit = cardView.findViewById(R.id.tvTituloCard);
+        TextView tvDesc = cardView.findViewById(R.id.tvDescricaoCard);
+
+        tvTit.setText(titulo);
+        tvDesc.setText(descricao);
+
+        // Adiciona à lista
+        llContainer.addView(cardView);
+    }
+
+    private void adicionarTituloSeccao(String titulo) {
+        TextView tv = new TextView(this);
+        tv.setText(titulo);
+        tv.setTextSize(16);
+        tv.setPadding(16, 32, 16, 8);
+        tv.setTypeface(null, Typeface.BOLD);
+        tv.setTextColor(getResources().getColor(R.color.black)); // Ou a tua cor primária
+        llContainer.addView(tv);
+    }
+
+    private void adicionarAvisoVazio(String mensagem) {
+        TextView tv = new TextView(this);
+        tv.setText(mensagem);
+        tv.setPadding(16, 16, 16, 16);
+        tv.setTextColor(getResources().getColor(android.R.color.darker_gray));
+        llContainer.addView(tv);
+    }
+
+
 }

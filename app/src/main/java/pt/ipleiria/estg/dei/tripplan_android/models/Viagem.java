@@ -25,8 +25,10 @@ public class Viagem implements Serializable {
     @SerializedName("transportes")
     private ArrayList<Transporte> transportes;
 
-    @SerializedName("destinos") // <--- O CAMPO QUE FALTAVA
+    @SerializedName("destinos")
     private ArrayList<Destino> destinos;
+
+        
 
     // --- CONSTRUTOR ---
     public Viagem(int id, int userId, String nomeViagem, String dataInicio, String dataFim) {

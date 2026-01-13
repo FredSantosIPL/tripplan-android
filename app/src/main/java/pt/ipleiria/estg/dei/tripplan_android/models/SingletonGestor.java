@@ -159,23 +159,39 @@ public class SingletonGestor {
     public void getViagemDetalhesAPI(int idViagem) {
         if (!isInternetAvailable()) return;
 
+        System.out.println("ZEZOCA_DEBUG: A pedir detalhes da viagem ID: " + idViagem);
+
         Call<Viagem> call = apiService.getViagemDetalhes(idViagem);
         call.enqueue(new Callback<Viagem>() {
             @Override
             public void onResponse(Call<Viagem> call, Response<Viagem> response) {
                 if (response.isSuccessful()) {
                     Viagem v = response.body();
-                    // O texto só muda se esta linha for executada:
+
+                    // --- ESPIÃO DE DADOS ---
+                    if (v != null) {
+                        System.out.println("ZEZOCA_DEBUG: Viagem recebida: " + v.getNomeViagem());
+                        if (v.getDestinos() == null) {
+                            System.out.println("ZEZOCA_DEBUG: ATENÇÃO! A lista de destinos veio NULL (vazia)!");
+                        } else {
+                            System.out.println("ZEZOCA_DEBUG: A lista traz " + v.getDestinos().size() + " destinos.");
+                        }
+                    } else {
+                        System.out.println("ZEZOCA_DEBUG: O corpo da resposta veio vazio (null).");
+                    }
+                    // -----------------------
+
                     if (detalhesListener != null) {
                         detalhesListener.onViagemDetalhesCarregados(v);
                     }
                 } else {
-                    // Se a API der erro (ex: 404 ou 500), mostra um Toast para saberes
+                    System.out.println("ZEZOCA_DEBUG: Erro na API. Código: " + response.code());
                     Toast.makeText(context, "Erro API: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
             @Override
             public void onFailure(Call<Viagem> call, Throwable t) {
+                System.out.println("ZEZOCA_DEBUG: Falha grave: " + t.getMessage());
                 Toast.makeText(context, "Erro ao carregar detalhes", Toast.LENGTH_SHORT).show();
             }
         });
@@ -429,6 +445,4 @@ public class SingletonGestor {
     public void setDetalhesListener(DetalhesListener listener) {
         this.detalhesListener = listener;
     }
-
-
 }

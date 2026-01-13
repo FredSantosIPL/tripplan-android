@@ -94,13 +94,13 @@
                 android:textStyle="bold"
                 android:layout_marginBottom="8dp"/>
 
-            <TextView
-                android:id="@+id/txtListaDestinos"
+            <LinearLayout
+                android:id="@+id/llContainerDados"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="A carregar informações..."
-                android:lineSpacingExtra="4dp"
-                android:textColor="#555555"/>
+                android:orientation="vertical"
+                android:padding="4dp">
+            </LinearLayout>
 
         </LinearLayout>
 

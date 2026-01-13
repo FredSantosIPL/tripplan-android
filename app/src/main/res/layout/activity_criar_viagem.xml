@@ -134,53 +134,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@id/etDataFim" />
 
-            <TextView
-                android:id="@+id/lblTransportes"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:text="Adicionar Transporte"
-                android:textColor="#005F9E"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/etDataFim" />
-
-            <Spinner
-                android:id="@+id/spTransporteTipo"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="8dp"
-                style="@style/Widget.AppCompat.Spinner.Underlined"
-                android:entries="@array/array_tipos_transporte"
-                app:layout_constraintTop_toBottomOf="@+id/lblTransportes" />
-
-            <LinearLayout
-                android:id="@+id/layoutRota"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:weightSum="2"
-                android:layout_marginTop="4dp"
-                app:layout_constraintTop_toBottomOf="@+id/spTransporteTipo">
-
-                <EditText
-                    android:id="@+id/etTransporteOrigem"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="8dp"
-                    android:hint="De: (Ex: Lisboa)" />
-
-                <EditText
-                    android:id="@+id/etTransporteDestino"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginStart="8dp"
-                    android:hint="Para: (Ex: Paris)" />
-            </LinearLayout>
-
             <Button
                 android:id="@+id/btnCriar"
                 android:layout_width="match_parent"
@@ -191,7 +144,7 @@
                 android:layout_marginTop="32dp"
                 android:layout_marginBottom="24dp"
                 android:backgroundTint="#005F9E"
-                app:layout_constraintTop_toBottomOf="@+id/layoutRota"
+                app:layout_constraintTop_toBottomOf="@+id/etDataFim"
                 app:layout_constraintBottom_toBottomOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
