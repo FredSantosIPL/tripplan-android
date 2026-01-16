@@ -63,7 +63,11 @@
         </activity>
         <activity
             android:name=".ui.LoginActivity"
-            android:exported="false" /> <!-- MainActivity: Apenas declarada (será o ecrã principal após login) -->
+            android:exported="false" />
+        <activity
+            android:name=".ui.ConfigActivity"
+            android:label="Configuração"
+            android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="false" />

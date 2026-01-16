@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Configuração do Servidor"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="24dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Atalhos Rápidos:"
+        android:textSize="12sp"
+        android:textColor="#666"
+        android:layout_marginBottom="8dp"/>
+
+    <Button
+        android:id="@+id/btnPresetEmulador"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Usar Emulador (10.0.2.2)"
+        android:backgroundTint="#0099ff"
+        android:textColor="#FFF"/>
+
+    <Button
+        android:id="@+id/btnPresetReal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Usar Wi-Fi / Escola (192.168...)"
+        android:backgroundTint="#4CAF50"
+        android:textColor="#FFF"
+        android:layout_marginBottom="24dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="URL da API:"
+        android:layout_gravity="start"
+        android:textStyle="bold"/>
+
+    <EditText
+        android:id="@+id/etIpAddress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="http://..."
+        android:inputType="textUri"/>
+
+    <Button
+        android:id="@+id/btnSalvarConfig"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="GUARDAR CONFIGURAÇÃO"
+        android:textStyle="bold"
+        android:layout_marginTop="32dp"/>
+
+</LinearLayout>

@@ -151,7 +151,7 @@ public class SingletonGestor {
         });
     }
 
-    // 3. MASTER/DETAIL (GET COMPLETO) - [ATUALIZADO AQUI]
+    // 3. MASTER/DETAIL (GET COMPLETO)
     public interface DetalhesListener {
         void onViagemDetalhesCarregados(Viagem viagem);
     }
@@ -165,10 +165,8 @@ public class SingletonGestor {
 
         System.out.println("ZEZOCA_DEBUG: A pedir detalhes da viagem ID: " + idViagem);
 
-        // [IMPORTANTE] String mágica para o Yii2 trazer os dados das tabelas relacionadas
         String expand = "destinos,atividades,transportes,fotosMemorias";
 
-        // [IMPORTANTE] Tens de ter criado o método getDetalhesViagem no TripplanAPI.java
         Call<Viagem> call = apiService.getDetalhesViagem(idViagem, expand);
 
         call.enqueue(new Callback<Viagem>() {
@@ -177,25 +175,15 @@ public class SingletonGestor {
                 if (response.isSuccessful() && response.body() != null) {
                     Viagem v = response.body();
 
-                    // --- ESPIÃO DE DADOS ---
-                    System.out.println("ZEZOCA_DEBUG: Viagem recebida: " + v.getNomeViagem());
-                    System.out.println("--> Destinos: " + (v.getDestinos() != null ? v.getDestinos().size() : "null"));
-                    System.out.println("--> Atividades: " + (v.getAtividades() != null ? v.getAtividades().size() : "null"));
-                    System.out.println("--> Transportes: " + (v.getTransportes() != null ? v.getTransportes().size() : "null"));
-                    System.out.println("--> Fotos: " + (v.getListaFotos() != null ? v.getListaFotos().size() : "null"));
-                    // -----------------------
-
                     if (detalhesListener != null) {
                         detalhesListener.onViagemDetalhesCarregados(v);
                     }
                 } else {
-                    System.out.println("ZEZOCA_DEBUG: Erro na API. Código: " + response.code());
                     Toast.makeText(context, "Erro API: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
             @Override
             public void onFailure(Call<Viagem> call, Throwable t) {
-                System.out.println("ZEZOCA_DEBUG: Falha grave: " + t.getMessage());
                 Toast.makeText(context, "Erro ao carregar detalhes", Toast.LENGTH_SHORT).show();
             }
         });
@@ -231,7 +219,7 @@ public class SingletonGestor {
     }
 
     private boolean isInternetAvailable() {
-        return true; // Assume true por agora (em produção deves verificar ConnectivityManager)
+        return true;
     }
 
     /* ======================================================
@@ -319,46 +307,32 @@ public class SingletonGestor {
     // --- ATIVIDADES ---
     public void adicionarAtividadeAPI(Atividade atividade) {
         if (!isInternetAvailable()) return;
-
-        System.out.println("--> ZECA_DEBUG: A enviar Atividade: " + atividade.toString());
-
         Call<Atividade> call = apiService.adicionarAtividade(atividade);
         call.enqueue(new Callback<Atividade>() {
             @Override
             public void onResponse(Call<Atividade> call, Response<Atividade> response) {
                 if (response.isSuccessful()) {
                     Toast.makeText(context, "Atividade adicionada!", Toast.LENGTH_SHORT).show();
-                } else {
-                    try {
-                        System.out.println("--> ZECA_DEBUG: Erro API " + response.code() + ": " + response.errorBody().string());
-                    } catch (Exception e) { e.printStackTrace(); }
                 }
             }
             @Override
-            public void onFailure(Call<Atividade> call, Throwable t) {
-                System.out.println("--> ZECA_DEBUG: Falha Total: " + t.getMessage());
-            }
+            public void onFailure(Call<Atividade> call, Throwable t) {}
         });
     }
 
     // --- ESTADIAS ---
     public void adicionarEstadiaAPI(Estadia estadia) {
         if (!isInternetAvailable()) return;
-
         Call<Estadia> call = apiService.adicionarEstadia(estadia);
         call.enqueue(new Callback<Estadia>() {
             @Override
             public void onResponse(Call<Estadia> call, Response<Estadia> response) {
                 if (response.isSuccessful()) {
                     Toast.makeText(context, "Estadia reservada!", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(context, "Erro: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
             @Override
-            public void onFailure(Call<Estadia> call, Throwable t) {
-                Toast.makeText(context, "Falha de Rede: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
+            public void onFailure(Call<Estadia> call, Throwable t) {}
         });
     }
 
@@ -403,24 +377,66 @@ public class SingletonGestor {
         RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), ficheiroImagem);
         MultipartBody.Part bodyFoto = MultipartBody.Part.createFormData("foto", ficheiroImagem.getName(), requestFile);
 
-        System.out.println("--> A ENVIAR FOTO... User: " + idUser + " | Viagem: " + idViagem);
-
         Call<FotoMemoria> call = apiService.uploadFoto(idBody, comentarioBody, userBody, bodyFoto);
         call.enqueue(new Callback<FotoMemoria>() {
             @Override
             public void onResponse(Call<FotoMemoria> call, Response<FotoMemoria> response) {
                 if (response.isSuccessful()) {
                     Toast.makeText(context, "Foto guardada!", Toast.LENGTH_SHORT).show();
-                } else {
-                    try {
-                        System.out.println("--> ERRO API FOTO: " + response.errorBody().string());
-                    } catch (Exception e) {}
                 }
             }
             @Override
-            public void onFailure(Call<FotoMemoria> call, Throwable t) {
-                System.out.println("--> FALHA FOTO: " + t.getMessage());
+            public void onFailure(Call<FotoMemoria> call, Throwable t) {}
+        });
+    }
+
+    /* ======================================================
+       MÉTODOS DE GESTÃO (EDITAR / REMOVER) [ADICIONADO]
+       ====================================================== */
+
+    // 1. Interface para ouvir a resposta (Sucesso ou Erro)
+    public interface GestaoViagemListener {
+        void onViagemRemovida();
+        void onErro(String mensagem);
+    }
+
+    // 2. Método para Apagar a Viagem na API
+    public void removerViagemAPI(int idViagem, final GestaoViagemListener listener) {
+        if (!isInternetAvailable()) {
+            if (listener != null) listener.onErro("Sem ligação à internet.");
+            return;
+        }
+
+        Call<Void> call = apiService.apagarViagem(idViagem);
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    // Remover da lista local para a UI atualizar logo se voltarmos atrás
+                    removerViagemLocal(idViagem);
+
+                    if (listener != null) listener.onViagemRemovida();
+                } else {
+                    if (listener != null) listener.onErro("Erro API: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                if (listener != null) listener.onErro("Falha: " + t.getMessage());
             }
         });
+    }
+
+    // Método auxiliar para limpar da lista local em memória
+    private void removerViagemLocal(int id) {
+        if (viagens != null) {
+            for (int i = 0; i < viagens.size(); i++) {
+                if (viagens.get(i).getId() == id) {
+                    viagens.remove(i);
+                    break;
+                }
+            }
+        }
     }
 }

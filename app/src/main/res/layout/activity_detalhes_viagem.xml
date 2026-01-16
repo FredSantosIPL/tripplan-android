@@ -29,6 +29,31 @@
                 android:textSize="26sp"
                 android:textStyle="bold"/>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="end"
+                android:padding="10dp">
+
+                <ImageButton
+                    android:id="@+id/btnEditarViagem"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@android:drawable/ic_menu_edit"
+                    android:background="?attr/selectableItemBackground"
+                    android:contentDescription="Editar" />
+
+                <ImageButton
+                    android:id="@+id/btnApagarViagem"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@android:drawable/ic_menu_delete"
+                    android:background="?attr/selectableItemBackground"
+                    android:contentDescription="Apagar"
+                    app:tint="#F44336" />
+            </LinearLayout>
+
             <TextView
                 android:id="@+id/tvDatasViagem"
                 android:layout_width="wrap_content"
