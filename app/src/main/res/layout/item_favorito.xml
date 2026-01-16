@@ -1,40 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:padding="16dp"
-    android:background="@android:color/white"
-    android:layout_marginBottom="8dp"
-    android:elevation="2dp"
-    android:gravity="center_vertical">
+    android:layout_marginBottom="12dp"
+    android:layout_marginHorizontal="16dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="@color/white">
 
-    <ImageView
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:src="@android:drawable/btn_star_big_on"
-        android:tint="#FFD700"
-        android:layout_marginEnd="16dp"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:gravity="center_vertical">
 
-        <TextView
-            android:id="@+id/tvFavoritoDestino"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Destino ID: 12"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="#333"/>
+        <FrameLayout
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@drawable/bg_card_action_btn">
 
-        <TextView
-            android:layout_width="wrap_content"
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@android:drawable/btn_star_big_on"
+                android:layout_gravity="center"
+                app:tint="@color/accent_orange" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Favorito guardado"
-            android:textSize="12sp"
-            android:textColor="#888"/>
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="16dp">
+
+            <TextView
+                android:id="@+id/tvFavoritoDestino"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Paris, França"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_title"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Adicionado aos favoritos"
+                android:textSize="12sp"
+                android:textColor="@color/text_body"
+                android:layout_marginTop="2dp"/>
+        </LinearLayout>
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@android:drawable/ic_media_play"
+            android:rotation="0"
+            android:tint="@color/text_light"/>
+
     </LinearLayout>
-
-</LinearLayout>
+</androidx.cardview.widget.CardView>

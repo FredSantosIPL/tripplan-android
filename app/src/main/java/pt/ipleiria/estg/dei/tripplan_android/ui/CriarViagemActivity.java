@@ -3,7 +3,7 @@ package pt.ipleiria.estg.dei.tripplan_android.ui;
 import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.EditText; // Necessário para o método auxiliar
+import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -24,73 +24,83 @@ public class CriarViagemActivity extends AppCompatActivity {
     private ActivityCriarViagemBinding binding;
     private final Calendar calendar = Calendar.getInstance();
 
+    // Variável para saber se estamos a editar (vem do Intent)
+    private int idViagemEditar = -1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityCriarViagemBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // 1. Configurar os cliques nos campos de data e ícones
+        // 0. Verificar se é Edição (Opcional, mas já fica preparado)
+        idViagemEditar = getIntent().getIntExtra("ID_VIAGEM_EDITAR", -1);
+        if(idViagemEditar != -1) {
+            binding.tvTituloPagina.setText("Editar Viagem");
+            binding.btnGuardar.setText("ATUALIZAR");
+            // Aqui poderias carregar os dados antigos para os campos...
+        }
+
+        // 1. Configurar os cliques nos campos de data (agora clica-se na caixa inteira)
+        // Impedir o teclado de abrir nas datas
+        binding.etDataInicio.setFocusable(false);
+        binding.etDataInicio.setClickable(true);
+        binding.etDataFim.setFocusable(false);
+        binding.etDataFim.setClickable(true);
+
         configurarDatePicker(binding.etDataInicio);
         configurarDatePicker(binding.etDataFim);
 
-        binding.ivCalendarInicio.setOnClickListener(v -> binding.etDataInicio.performClick());
-        binding.ivCalendarFim.setOnClickListener(v -> binding.etDataFim.performClick());
-
-        // 2. Configurar Botão Criar
-        binding.btnCriar.setOnClickListener(new View.OnClickListener() {
+        // 2. Configurar Botão Guardar (Novo ID: btnGuardar)
+        binding.btnGuardar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String nome = binding.etNomeViagem.getText().toString();
+                // Novos IDs: etTitulo
+                String nome = binding.etTitulo.getText().toString();
                 String dataInicio = binding.etDataInicio.getText().toString();
                 String dataFim = binding.etDataFim.getText().toString();
 
-                // Validações básicas
                 if (nome.isEmpty() || dataInicio.isEmpty() || dataFim.isEmpty()) {
-                    Toast.makeText(CriarViagemActivity.this, "Preenche os dados da viagem!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(CriarViagemActivity.this, "Preenche os dados todos!", Toast.LENGTH_SHORT).show();
                 } else {
-                    enviarViagemParaAPI(nome, dataInicio, dataFim);
+                    if(idViagemEditar == -1) {
+                        enviarViagemParaAPI(nome, dataInicio, dataFim);
+                    } else {
+                        // TODO: Implementar lógica de editar se quiseres
+                        Toast.makeText(CriarViagemActivity.this, "Modo edição não implementado totalmente.", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
 
-        // Botão de voltar (clique no logo)
-        binding.ivLogo.setOnClickListener(v -> finish());
+        // Se tiveres botão de voltar no layout (no moderno não puseste, usa-se o do telemóvel)
     }
 
     private void enviarViagemParaAPI(String nomeViagem, String dataInicio, String dataFim) {
-        // Obter ID do User logado
         int userId = SingletonGestor.getInstance(this).getUserIdLogado();
-
-        // Criar Objeto Viagem (ID 0 porque é nova)
         Viagem novaViagem = new Viagem(0, userId, nomeViagem, dataInicio, dataFim);
 
-        // Chamada à API
         TripplanAPI service = ServiceBuilder.buildService(TripplanAPI.class);
         Call<Viagem> call = service.adicionarViagem(novaViagem);
 
         call.enqueue(new Callback<Viagem>() {
             @Override
             public void onResponse(Call<Viagem> call, Response<Viagem> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    // SUCESSO!
-                    Toast.makeText(CriarViagemActivity.this, "Viagem criada com sucesso!", Toast.LENGTH_SHORT).show();
-
-                    // Fecha a atividade e volta à lista principal
+                if (response.isSuccessful()) {
+                    Toast.makeText(CriarViagemActivity.this, "Viagem criada!", Toast.LENGTH_SHORT).show();
                     finish();
                 } else {
-                    Toast.makeText(CriarViagemActivity.this, "Erro ao criar viagem: " + response.code(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(CriarViagemActivity.this, "Erro: " + response.code(), Toast.LENGTH_LONG).show();
                 }
             }
 
             @Override
             public void onFailure(Call<Viagem> call, Throwable t) {
-                Toast.makeText(CriarViagemActivity.this, "Erro de rede: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                Toast.makeText(CriarViagemActivity.this, "Erro rede: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }
 
-    // Método auxiliar para abrir o calendário
     private void configurarDatePicker(EditText editText) {
         editText.setOnClickListener(v -> {
             int ano = calendar.get(Calendar.YEAR);
@@ -99,7 +109,7 @@ public class CriarViagemActivity extends AppCompatActivity {
 
             DatePickerDialog datePicker = new DatePickerDialog(CriarViagemActivity.this,
                     (view, year, month, dayOfMonth) -> {
-                        // Formatar data para AAAA-MM-DD (Formato MySQL)
+                        // Formato SQL: AAAA-MM-DD
                         String dataFormatada = String.format(Locale.getDefault(), "%d-%02d-%02d", year, month + 1, dayOfMonth);
                         editText.setText(dataFormatada);
                     }, ano, mes, dia);

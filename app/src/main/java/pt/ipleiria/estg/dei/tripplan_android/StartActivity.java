@@ -19,14 +19,14 @@ public class StartActivity extends AppCompatActivity {
         binding = ActivityStartBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // Clique no botão Entrar -> Vai para LoginActivity
-        binding.btnEntrar.setOnClickListener(v -> {
+        // CORREÇÃO: O ID no XML novo é btnLoginStart
+        binding.btnLoginStart.setOnClickListener(v -> {
             Intent intent = new Intent(StartActivity.this, LoginActivity.class);
             startActivity(intent);
         });
 
-        // Clique no botão Registar
-        binding.btnRegistar.setOnClickListener(v -> {
+        // CORREÇÃO: O ID no XML novo é btnRegisterStart
+        binding.btnRegisterStart.setOnClickListener(v -> {
             Intent intent = new Intent(StartActivity.this, RegisterActivity.class);
             startActivity(intent);
         });

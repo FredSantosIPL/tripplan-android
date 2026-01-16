@@ -1,40 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="12dp"
-    android:layout_marginBottom="8dp"
-    android:background="@android:drawable/dialog_holo_light_frame"
-    android:gravity="center_vertical">
+    android:paddingVertical="12dp"
+    android:gravity="center_vertical"
+    android:background="?attr/selectableItemBackground">
 
-    <ImageView
-        android:id="@+id/imgIcon"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:src="@android:drawable/ic_menu_info_details"
-        android:layout_marginEnd="12dp"/>
+    <FrameLayout
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/bg_card_action_btn"
+        android:layout_marginEnd="16dp">
+
+        <ImageView
+            android:id="@+id/imgIcon"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center"
+            android:src="@android:drawable/ic_dialog_map"
+            app:tint="@color/primary_blue" />
+</FrameLayout>
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/tvPrincipal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Título Principal"
+            android:text="Paris, França"
             android:textStyle="bold"
-            android:textColor="#000"
+            android:textColor="@color/text_title"
             android:textSize="16sp"/>
 
         <TextView
             android:id="@+id/tvSecundario"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Detalhe secundário"
-            android:textColor="#666"
-            android:textSize="14sp"/>
+            android:text="Chegada: 12 Dez"
+            android:textColor="@color/text_body"
+            android:textSize="12sp"/>
     </LinearLayout>
+
 </LinearLayout>
