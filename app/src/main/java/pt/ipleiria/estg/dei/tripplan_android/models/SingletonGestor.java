@@ -2,7 +2,7 @@ package pt.ipleiria.estg.dei.tripplan_android.models;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.SharedPreferences; // [NOVO] Importante para guardar dados
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.widget.Toast;
@@ -31,9 +31,13 @@ public class SingletonGestor {
     private TripplanAPI apiService;
     private ViagensListener viagensListener;
 
-    // [NOVO] Variáveis de Sessão (ID e Token)
+    // Variáveis de Sessão
     private int userIdLogado = 0;
-    private String token = null; // [NOVO] Variável para guardar o Token
+    private String token = null;
+
+    // Listeners Específicos
+    private DetalhesListener detalhesListener; // Listener para os Detalhes
+    private FavoritosListener favoritosListener; // Listener para os Favoritos
 
     private SingletonGestor(Context context){
         this.context = context;
@@ -53,9 +57,7 @@ public class SingletonGestor {
         return instance;
     }
 
-
-
-    // --- INTERFACE LISTENER ---
+    // --- INTERFACE LISTENER LISTA PRINCIPAL ---
     public interface ViagensListener {
         void onRefreshLista(ArrayList<Viagem> listaViagens);
     }
@@ -69,10 +71,9 @@ public class SingletonGestor {
     }
 
     /* ======================================================
-       GESTÃO DE SESSÃO (Token e ID) - [ALTERADO AQUI]
+       GESTÃO DE SESSÃO
        ====================================================== */
 
-    // Guardar ID
     public void setUserIdLogado(int id) {
         this.userIdLogado = id;
     }
@@ -81,20 +82,15 @@ public class SingletonGestor {
         return userIdLogado;
     }
 
-    // [NOVO] Guardar Token (Memória + Telemóvel)
     public void setToken(String token) {
         this.token = token;
-
-        // Guardar nas preferências do telemóvel para não perder se fechar a app
         SharedPreferences prefs = context.getSharedPreferences("DADOS_TRIPPLAN", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString("TOKEN_API", token);
         editor.apply();
     }
 
-    // [NOVO] Ler Token
     public String getToken() {
-        // Se a variável estiver vazia, tenta ir buscar à memória do telemóvel
         if (this.token == null) {
             SharedPreferences prefs = context.getSharedPreferences("DADOS_TRIPPLAN", Context.MODE_PRIVATE);
             this.token = prefs.getString("TOKEN_API", null);
@@ -106,7 +102,7 @@ public class SingletonGestor {
        MÉTODOS DA API
        ====================================================== */
 
-    // 1. READ
+    // 1. READ (LISTA)
     public void getAllViagensAPI() {
         if (!isInternetAvailable()) {
             Toast.makeText(context, "Sem internet", Toast.LENGTH_SHORT).show();
@@ -132,7 +128,7 @@ public class SingletonGestor {
         });
     }
 
-    // 2. CREATE
+    // 2. CREATE VIAGEM
     public void adicionarViagemAPI(Viagem viagem) {
         Call<Viagem> call = apiService.adicionarViagem(viagem);
         call.enqueue(new Callback<Viagem>() {
@@ -155,30 +151,38 @@ public class SingletonGestor {
         });
     }
 
-    // 3. MASTER/DETAIL
+    // 3. MASTER/DETAIL (GET COMPLETO) - [ATUALIZADO AQUI]
+    public interface DetalhesListener {
+        void onViagemDetalhesCarregados(Viagem viagem);
+    }
+
+    public void setDetalhesListener(DetalhesListener listener) {
+        this.detalhesListener = listener;
+    }
+
     public void getViagemDetalhesAPI(int idViagem) {
         if (!isInternetAvailable()) return;
 
         System.out.println("ZEZOCA_DEBUG: A pedir detalhes da viagem ID: " + idViagem);
 
-        Call<Viagem> call = apiService.getViagemDetalhes(idViagem);
+        // [IMPORTANTE] String mágica para o Yii2 trazer os dados das tabelas relacionadas
+        String expand = "destinos,atividades,transportes,fotosMemorias";
+
+        // [IMPORTANTE] Tens de ter criado o método getDetalhesViagem no TripplanAPI.java
+        Call<Viagem> call = apiService.getDetalhesViagem(idViagem, expand);
+
         call.enqueue(new Callback<Viagem>() {
             @Override
             public void onResponse(Call<Viagem> call, Response<Viagem> response) {
-                if (response.isSuccessful()) {
+                if (response.isSuccessful() && response.body() != null) {
                     Viagem v = response.body();
 
                     // --- ESPIÃO DE DADOS ---
-                    if (v != null) {
-                        System.out.println("ZEZOCA_DEBUG: Viagem recebida: " + v.getNomeViagem());
-                        if (v.getDestinos() == null) {
-                            System.out.println("ZEZOCA_DEBUG: ATENÇÃO! A lista de destinos veio NULL (vazia)!");
-                        } else {
-                            System.out.println("ZEZOCA_DEBUG: A lista traz " + v.getDestinos().size() + " destinos.");
-                        }
-                    } else {
-                        System.out.println("ZEZOCA_DEBUG: O corpo da resposta veio vazio (null).");
-                    }
+                    System.out.println("ZEZOCA_DEBUG: Viagem recebida: " + v.getNomeViagem());
+                    System.out.println("--> Destinos: " + (v.getDestinos() != null ? v.getDestinos().size() : "null"));
+                    System.out.println("--> Atividades: " + (v.getAtividades() != null ? v.getAtividades().size() : "null"));
+                    System.out.println("--> Transportes: " + (v.getTransportes() != null ? v.getTransportes().size() : "null"));
+                    System.out.println("--> Fotos: " + (v.getListaFotos() != null ? v.getListaFotos().size() : "null"));
                     // -----------------------
 
                     if (detalhesListener != null) {
@@ -206,12 +210,9 @@ public class SingletonGestor {
             @Override
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-
-                    // [NOVO] Guardar automaticamente o token ao fazer login por aqui
                     String tokenRecebido = response.body().getToken();
-                    setToken(tokenRecebido); // Usa o método novo que criámos
-                    setUserIdLogado(response.body().getId()); // Guarda o ID também
-
+                    setToken(tokenRecebido);
+                    setUserIdLogado(response.body().getId());
                     loginListener.onLoginSuccess();
                 } else {
                     loginListener.onLoginError("Dados inválidos");
@@ -230,7 +231,7 @@ public class SingletonGestor {
     }
 
     private boolean isInternetAvailable() {
-        return true;
+        return true; // Assume true por agora (em produção deves verificar ConnectivityManager)
     }
 
     /* ======================================================
@@ -277,6 +278,7 @@ public class SingletonGestor {
         return user;
     }
 
+    // --- TRANSPORTES ---
     public void adicionarTransporteAPI(Transporte transporte) {
         if (!isInternetAvailable()) return;
 
@@ -286,7 +288,6 @@ public class SingletonGestor {
             public void onResponse(Call<Transporte> call, Response<Transporte> response) {
                 if (response.isSuccessful()) {
                     Toast.makeText(context, "Transporte adicionado!", Toast.LENGTH_SHORT).show();
-                    // Aqui podes disparar um listener para atualizar a lista de detalhes
                 }
             }
             @Override
@@ -300,18 +301,12 @@ public class SingletonGestor {
     public void adicionarDestinoAPI(int idViagem, Destino destino) {
         if (!isInternetAvailable()) return;
 
-        // NOTA: O backend precisa de saber que este destino pertence à viagem X.
-        // Se o modelo Destino não tiver campo "plano_viagem_id", o backend deve tratar disso
-        // ou terás de usar uma rota específica tipo "api/trips/{id}/destinos".
-        // Vou assumir o envio direto:
-
         Call<Destino> call = apiService.adicionarDestino(destino);
         call.enqueue(new Callback<Destino>() {
             @Override
             public void onResponse(Call<Destino> call, Response<Destino> response) {
                 if(response.isSuccessful()) {
                     Toast.makeText(context, "Destino criado!", Toast.LENGTH_SHORT).show();
-                    // Aqui podes disparar um listener se quiseres atualizar a lista
                 }
             }
             @Override
@@ -325,35 +320,20 @@ public class SingletonGestor {
     public void adicionarAtividadeAPI(Atividade atividade) {
         if (!isInternetAvailable()) return;
 
-        // 1. ESPREITAR O QUE VAMOS ENVIAR
-        System.out.println("--> ZECA_DEBUG: A enviar Atividade...");
-        System.out.println("--> ZECA_DEBUG: Dados: " + atividade.toString());
+        System.out.println("--> ZECA_DEBUG: A enviar Atividade: " + atividade.toString());
 
         Call<Atividade> call = apiService.adicionarAtividade(atividade);
         call.enqueue(new Callback<Atividade>() {
             @Override
             public void onResponse(Call<Atividade> call, Response<Atividade> response) {
                 if (response.isSuccessful()) {
-                    Atividade resposta = response.body();
-                    // 2. ESPREITAR O QUE O SERVIDOR RESPONDEU
-                    System.out.println("--> ZECA_DEBUG: Sucesso! O servidor gravou isto:");
-                    if (resposta != null) {
-                        System.out.println("--> ZECA_DEBUG: Resposta: " + resposta.toString());
-                    } else {
-                        System.out.println("--> ZECA_DEBUG: Resposta veio vazia (null)!");
-                    }
-
                     Toast.makeText(context, "Atividade adicionada!", Toast.LENGTH_SHORT).show();
                 } else {
-                    // 3. ESPREITAR SE HOUVE ERRO ESCONDIDO
                     try {
                         System.out.println("--> ZECA_DEBUG: Erro API " + response.code() + ": " + response.errorBody().string());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                    } catch (Exception e) { e.printStackTrace(); }
                 }
             }
-
             @Override
             public void onFailure(Call<Atividade> call, Throwable t) {
                 System.out.println("--> ZECA_DEBUG: Falha Total: " + t.getMessage());
@@ -370,31 +350,19 @@ public class SingletonGestor {
             @Override
             public void onResponse(Call<Estadia> call, Response<Estadia> response) {
                 if (response.isSuccessful()) {
-                    Toast.makeText(context, "Estadia reservada com sucesso!", Toast.LENGTH_SHORT).show();
-                    System.out.println("--> SUCESSO: Estadia criada com ID: " + response.body().getId());
+                    Toast.makeText(context, "Estadia reservada!", Toast.LENGTH_SHORT).show();
                 } else {
-                    // AQUI ESTÁ O SEGREDO: Ler o corpo do erro
-                    try {
-                        String erroApi = response.errorBody().string();
-                        System.out.println("--> ERRO API (Código " + response.code() + "): " + erroApi);
-                        Toast.makeText(context, "Erro: " + response.code(), Toast.LENGTH_SHORT).show();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                    Toast.makeText(context, "Erro: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
             @Override
             public void onFailure(Call<Estadia> call, Throwable t) {
                 Toast.makeText(context, "Falha de Rede: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                t.printStackTrace(); // Imprime o erro completo no Logcat
             }
         });
     }
 
     // --- FAVORITOS (LISTAGEM) ---
-    // Precisamos de um listener específico para receber a lista na Activity
-    private FavoritosListener favoritosListener;
-
     public interface FavoritosListener {
         void onRefreshFavoritos(ArrayList<Favorito> listaFavoritos);
     }
@@ -417,7 +385,6 @@ public class SingletonGestor {
                     }
                 }
             }
-
             @Override
             public void onFailure(Call<List<Favorito>> call, Throwable t) {
                 Toast.makeText(context, "Erro ao buscar favoritos", Toast.LENGTH_SHORT).show();
@@ -426,68 +393,34 @@ public class SingletonGestor {
     }
 
     // --- FOTOS ---
-    // --- FOTOS (COM LOGS DETALHADOS) ---
     public void uploadFotoAPI(int idViagem, String comentarioTexto, File ficheiroImagem) {
         if (!isInternetAvailable()) return;
 
-        // 1. Preparar os dados
         int idUser = getUserIdLogado();
-
         RequestBody idBody = RequestBody.create(MediaType.parse("text/plain"), String.valueOf(idViagem));
         RequestBody comentarioBody = RequestBody.create(MediaType.parse("text/plain"), comentarioTexto);
-
-        // Novo RequestBody para o ID do User
         RequestBody userBody = RequestBody.create(MediaType.parse("text/plain"), String.valueOf(idUser));
-
         RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), ficheiroImagem);
         MultipartBody.Part bodyFoto = MultipartBody.Part.createFormData("foto", ficheiroImagem.getName(), requestFile);
 
         System.out.println("--> A ENVIAR FOTO... User: " + idUser + " | Viagem: " + idViagem);
 
-        // 2. Enviar tudo (incluindo o userBody)
         Call<FotoMemoria> call = apiService.uploadFoto(idBody, comentarioBody, userBody, bodyFoto);
-
         call.enqueue(new Callback<FotoMemoria>() {
             @Override
             public void onResponse(Call<FotoMemoria> call, Response<FotoMemoria> response) {
                 if (response.isSuccessful()) {
-                    // O servidor aceitou (Código 200-299)
-                    if (response.body() != null) {
-                        System.out.println("--> SUCESSO! Resposta do Servidor: " + response.body().toString());
-                        // Se o modelo FotoMemoria tiver getters, podes imprimir:
-                        // System.out.println("--> ID Criado: " + response.body().getId());
-                        Toast.makeText(context, "Foto guardada com sucesso!", Toast.LENGTH_SHORT).show();
-                    } else {
-                        System.out.println("--> SUCESSO ESTRANHO: O corpo da resposta veio vazio (null).");
-                    }
+                    Toast.makeText(context, "Foto guardada!", Toast.LENGTH_SHORT).show();
                 } else {
-                    // O servidor recusou (Erro 400, 404, 500...)
                     try {
-                        String erroApi = response.errorBody().string();
-                        System.out.println("--> ERRO API (Código " + response.code() + "): " + erroApi);
-                        Toast.makeText(context, "Erro no upload: " + response.code(), Toast.LENGTH_SHORT).show();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                        System.out.println("--> ERRO API FOTO: " + response.errorBody().string());
+                    } catch (Exception e) {}
                 }
             }
-
             @Override
             public void onFailure(Call<FotoMemoria> call, Throwable t) {
-                // Erro de rede ou conversão de dados
-                System.out.println("--> FALHA FATAL: " + t.getMessage());
-                t.printStackTrace(); // Isto vai mostrar o erro completo no Logcat
-                Toast.makeText(context, "Falha no envio: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                System.out.println("--> FALHA FOTO: " + t.getMessage());
             }
         });
-    }
-    private DetalhesListener detalhesListener; // <--- NOVO
-
-    public interface DetalhesListener {
-        void onViagemDetalhesCarregados(Viagem viagem);
-    }
-
-    public void setDetalhesListener(DetalhesListener listener) {
-        this.detalhesListener = listener;
     }
 }

@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F5F5"
-    tools:context=".DetalhesViagemActivity">
+    android:background="#F5F5F5">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -22,170 +21,151 @@
             android:padding="24dp">
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Detalhes da Viagem"
-                android:textColor="@android:color/white"
-                android:textSize="20sp"
-                android:textStyle="bold"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Gere o teu itinerário e memórias."
-                android:textColor="#E0E0E0"
-                android:textSize="12sp"
-                android:layout_marginTop="4dp"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@android:color/white"
-            android:padding="20dp"
-            android:layout_margin="16dp"
-            android:elevation="4dp">
-
-            <TextView
-                android:id="@+id/txtDetalheTitulo"
+                android:id="@+id/tvTituloViagem"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Carregando..."
-                android:textColor="#333333"
-                android:textSize="24sp"
+                android:textColor="@android:color/white"
+                android:textSize="26sp"
                 android:textStyle="bold"/>
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="8dp"
-                android:gravity="center_vertical">
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@android:drawable/ic_menu_my_calendar"
-                    app:tint="#757575"/>
-
-                <TextView
-                    android:id="@+id/txtDetalheDatas"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="--/--/---- até --/--/----"
-                    android:textColor="#757575"
-                    android:textSize="14sp"
-                    android:layout_marginStart="8dp"/>
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#E0E0E0"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp"/>
-
             <TextView
+                android:id="@+id/tvDatasViagem"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Resumo do Plano"
-                android:textColor="#0099ff"
-                android:textStyle="bold"
-                android:layout_marginBottom="8dp"/>
-
-            <LinearLayout
-                android:id="@+id/llContainerDados"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="4dp">
-            </LinearLayout>
-
+                android:text="Data de início - Data de fim"
+                android:textColor="#E0E0E0"
+                android:textSize="14sp"
+                android:layout_marginTop="4dp"/>
         </LinearLayout>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Adicionar ao Plano"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="10dp"
-            android:textColor="#555555"
-            android:textStyle="bold"/>
-
-        <GridLayout
+        <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:columnCount="2"
-            android:padding="10dp">
+            android:padding="10dp"
+            android:clipToPadding="false"
+            android:scrollbars="none">
 
-            <Button
-                android:id="@+id/btnAdicionarDestino"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_columnWeight="1"
-                android:layout_margin="6dp"
-                android:text="Destino"
-                android:backgroundTint="#FFFFFF"
-                android:textColor="#0099ff"
-                android:drawableTop="@android:drawable/ic_menu_mapmode"
-                android:drawableTint="#0099ff"
-                app:strokeColor="#0099ff"
-                app:strokeWidth="1dp"
-                style="@style/Widget.Material3.Button.OutlinedButton"/>  <Button
-            android:id="@+id/btnAdicionarTransporte"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:layout_margin="6dp"
-            android:text="Transporte"
-            android:backgroundTint="#FFFFFF"
-            android:textColor="#0099ff"
-            android:drawableTop="@android:drawable/ic_menu_compass"
-            android:drawableTint="#0099ff"
-            app:strokeColor="#0099ff"
-            app:strokeWidth="1dp"
-            style="@style/Widget.Material3.Button.OutlinedButton"/> <Button
-            android:id="@+id/btnAdicionarEstadia"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:layout_margin="6dp"
-            android:text="Estadia"
-            android:backgroundTint="#FFFFFF"
-            android:textColor="#0099ff"
-            android:drawableTop="@android:drawable/ic_menu_myplaces"
-            android:drawableTint="#0099ff"
-            app:strokeColor="#0099ff"
-            app:strokeWidth="1dp"
-            style="@style/Widget.Material3.Button.OutlinedButton"/> <Button
-            android:id="@+id/btnAdicionarAtividade"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:layout_margin="6dp"
-            android:text="Atividade"
-            android:backgroundTint="#FFFFFF"
-            android:textColor="#0099ff"
-            android:drawableTop="@android:drawable/ic_menu_agenda"
-            android:drawableTint="#0099ff"
-            app:strokeColor="#0099ff"
-            app:strokeWidth="1dp"
-            style="@style/Widget.Material3.Button.OutlinedButton"/>
-        </GridLayout>
+                android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/btnAdicionarFoto"
+                <Button
+                    android:id="@+id/btnAddDestino"
+                    android:text="+ Destino"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:backgroundTint="#4CAF50"
+                    android:textColor="#FFF"/>
+
+                <Button
+                    android:id="@+id/btnAddAtividade"
+                    android:text="+ Atividade"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:backgroundTint="#FF9800"
+                    android:textColor="#FFF"/>
+
+                <Button
+                    android:id="@+id/btnAddTransporte"
+                    android:text="+ Transp."
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:backgroundTint="#2196F3"
+                    android:textColor="#FFF"/>
+
+                <Button
+                    android:id="@+id/btnAddEstadia"
+                    android:text="+ Hotel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:backgroundTint="#9C27B0"
+                    android:textColor="#FFF"/>
+
+                <Button
+                    android:id="@+id/btnAddFoto"
+                    android:text="+ Foto"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="#607D8B"
+                    android:textColor="#FFF"/>
+            </LinearLayout>
+        </HorizontalScrollView>
+
+        <TextView
+            android:text="📍 Destinos"
             android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="10dp"
-            android:text="Adicionar Memória / Foto"
-            android:drawableStart="@android:drawable/ic_menu_camera"
-            android:drawableTint="@android:color/white"
-            android:backgroundTint="#FF9800"
-            android:textColor="@android:color/white"
-            android:textStyle="bold"/>
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:textStyle="bold"
+            android:textColor="#333"
+            android:textSize="18sp"/>
+
+        <LinearLayout
+            android:id="@+id/llListaDestinos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"/>
+
+        <TextView
+            android:text="🎟️ Atividades"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:textStyle="bold"
+            android:textColor="#333"
+            android:textSize="18sp"/>
+
+        <LinearLayout
+            android:id="@+id/llListaAtividades"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"/>
+
+        <TextView
+            android:text="✈️ Transportes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:textStyle="bold"
+            android:textColor="#333"
+            android:textSize="18sp"/>
+
+        <LinearLayout
+            android:id="@+id/llListaTransportes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"/>
+
+        <TextView
+            android:text="📸 Memórias"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:textStyle="bold"
+            android:textColor="#333"
+            android:textSize="18sp"/>
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
+
+            <LinearLayout
+                android:id="@+id/llListaFotos"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"/>
+        </HorizontalScrollView>
 
     </LinearLayout>
-</ScrollView>
+</androidx.core.widget.NestedScrollView>

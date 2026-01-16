@@ -13,7 +13,6 @@ import pt.ipleiria.estg.dei.tripplan_android.models.LoginRequest;
 import pt.ipleiria.estg.dei.tripplan_android.models.LoginResponse;
 import pt.ipleiria.estg.dei.tripplan_android.models.RegisterRequest;
 import pt.ipleiria.estg.dei.tripplan_android.models.Transporte;
-import pt.ipleiria.estg.dei.tripplan_android.models.Utilizador;
 import pt.ipleiria.estg.dei.tripplan_android.models.Viagem;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -38,17 +37,19 @@ public interface TripplanAPI {
     /* --- VIAGENS --- */
 
     // Listar todas
-
-
-    @GET("api/trips") // Geralmente o Yii2 usa plural para coleções
+    @GET("api/trips")
     Call<List<Viagem>> getAllViagens(@Query("user_id") int userId);
 
-    // Detalhes (Master/Detail) - Adicionado o prefixo api/
-    // O ?expand diz ao backend para incluir as listas associadas (confirma se no PHP se chamam 'destino' e 'transporte')
-    @GET("api/trips/{id}?expand=destino")
-    Call<Viagem> getViagemDetalhes(@Path("id") int id);
+    // --- CORREÇÃO AQUI ---
+    // Removemos o método antigo que estava duplicado e deixamos só este que é o FLEXÍVEL.
+    // MUDANÇA CRUCIAL: De 'api/plano-viagems/{id}' para 'api/trips/{id}'
+    @GET("api/trips/{id}")
+    Call<Viagem> getDetalhesViagem(
+            @Path("id") int id,
+            @Query("expand") String expand
+    );
 
-    // Criar (No REST padrão do Yii2, é apenas POST no endpoint base)
+    // Criar
     @POST("api/trips")
     Call<Viagem> adicionarViagem(@Body Viagem novaViagem);
 
@@ -77,18 +78,16 @@ public interface TripplanAPI {
     Call<Estadia> adicionarEstadia(@Body Estadia estadia);
 
     /* --- FAVORITOS --- */
-    // 1. Obter lista de favoritos do user (Podes passar o user_id ou usar o token)
     @GET("api/favoritos")
     Call<List<Favorito>> getFavoritos(@Query("user_id") int userId);
 
-    // 2. Adicionar um favorito
     @POST("api/favoritos")
     Call<Favorito> adicionarFavorito(@Body Favorito favorito);
 
-    // 3. Remover favorito (Opcional, mas útil)
     @DELETE("api/favoritos/{id}")
     Call<Void> removerFavorito(@Path("id") int id);
 
+    /* --- FOTOS --- */
     @Multipart
     @POST("api/fotos-memorias")
     Call<FotoMemoria> uploadFoto(
