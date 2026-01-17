@@ -7,13 +7,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.widget.Toast;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
 import pt.ipleiria.estg.dei.tripplan_android.api.ServiceBuilder;
 import pt.ipleiria.estg.dei.tripplan_android.api.TripplanAPI;
 import retrofit2.Call;
@@ -36,8 +32,8 @@ public class SingletonGestor {
     private String token = null;
 
     // Listeners Específicos
-    private DetalhesListener detalhesListener; // Listener para os Detalhes
-    private FavoritosListener favoritosListener; // Listener para os Favoritos
+    private DetalhesListener detalhesListener;
+    private FavoritosListener favoritosListener;
 
     private SingletonGestor(Context context){
         this.context = context;
@@ -46,8 +42,9 @@ public class SingletonGestor {
         // 1. Inicializar Base de Dados Local
         bdHelper = new TripPlanBDHelper(context);
 
-        // 2. Inicializar a API
-        apiService = ServiceBuilder.buildService(TripplanAPI.class);
+        // 2. Inicializar a API com o IP guardado
+        // MUDANÇA 1: Chamamos este método em vez de criar direto
+        lerIpDasPreferencias();
     }
 
     public static synchronized SingletonGestor getInstance(Context context){
@@ -55,6 +52,23 @@ public class SingletonGestor {
             instance = new SingletonGestor(context);
         }
         return instance;
+    }
+
+    // --- MUDANÇA 2: NOVO MÉTODO PARA REINICIAR A API ---
+    public void lerIpDasPreferencias() {
+        SharedPreferences prefs = context.getSharedPreferences("DADOS_TRIPPLAN", Context.MODE_PRIVATE);
+
+        // URL Default (Emulador)
+        String ipDefault = "http://10.0.2.2:8888/TripPlan/tripplan/tripplan/backend/web/index.php/";
+        String ipGuardado = prefs.getString("IP_API", ipDefault);
+
+        // 1. Avisa o ServiceBuilder para atualizar o URL base
+        ServiceBuilder.setUrlBase(ipGuardado);
+
+        // 2. Reconstrói o serviço Retrofit com o novo IP
+        apiService = ServiceBuilder.buildService(TripplanAPI.class);
+
+        android.util.Log.d("ZECA_API", "API Reiniciada com IP: " + ipGuardado);
     }
 
     // --- INTERFACE LISTENER LISTA PRINCIPAL ---
@@ -96,6 +110,19 @@ public class SingletonGestor {
             this.token = prefs.getString("TOKEN_API", null);
         }
         return this.token;
+    }
+    public void fazerLogout() {
+        SharedPreferences prefs = context.getSharedPreferences("DADOS_TRIPPLAN", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+
+        editor.remove("TOKEN_API");
+        editor.remove("ID_USER");
+        editor.remove("EMAIL_USER");
+        editor.apply();
+
+        this.token = null;
+        this.userIdLogado = 0;
+        this.viagens.clear();
     }
 
     /* ======================================================
@@ -163,7 +190,7 @@ public class SingletonGestor {
     public void getViagemDetalhesAPI(int idViagem) {
         if (!isInternetAvailable()) return;
 
-        System.out.println("ZEZOCA_DEBUG: A pedir detalhes da viagem ID: " + idViagem);
+        System.out.println("DEBUG: A pedir detalhes da viagem ID: " + idViagem);
 
         String expand = "destinos,atividades,transportes,fotosMemorias";
 
@@ -366,41 +393,55 @@ public class SingletonGestor {
         });
     }
 
-    // --- FOTOS ---
-    public void uploadFotoAPI(int idViagem, String comentarioTexto, File ficheiroImagem) {
+    // --- FOTOS (MEMÓRIAS) ---
+    public void adicionarFotoAPI(FotoMemoria foto) {
         if (!isInternetAvailable()) return;
 
-        int idUser = getUserIdLogado();
-        RequestBody idBody = RequestBody.create(MediaType.parse("text/plain"), String.valueOf(idViagem));
-        RequestBody comentarioBody = RequestBody.create(MediaType.parse("text/plain"), comentarioTexto);
-        RequestBody userBody = RequestBody.create(MediaType.parse("text/plain"), String.valueOf(idUser));
-        RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), ficheiroImagem);
-        MultipartBody.Part bodyFoto = MultipartBody.Part.createFormData("foto", ficheiroImagem.getName(), requestFile);
+        android.util.Log.d("ZECA_DEBUG", "A tentar enviar foto...");
+        android.util.Log.d("ZECA_DEBUG", "ID Viagem: " + foto.getPlanoViagemId());
+        android.util.Log.d("ZECA_DEBUG", "Comentário: " + foto.getComentario());
 
-        Call<FotoMemoria> call = apiService.uploadFoto(idBody, comentarioBody, userBody, bodyFoto);
+        if (foto.getImagemBase64() != null) {
+            android.util.Log.d("ZECA_DEBUG", "Tamanho da Imagem (chars): " + foto.getImagemBase64().length());
+        } else {
+            android.util.Log.e("ZECA_DEBUG", "ERRO: A string Base64 está VAZIA!");
+        }
+
+        Call<FotoMemoria> call = apiService.adicionarFoto(foto);
         call.enqueue(new Callback<FotoMemoria>() {
             @Override
             public void onResponse(Call<FotoMemoria> call, Response<FotoMemoria> response) {
                 if (response.isSuccessful()) {
-                    Toast.makeText(context, "Foto guardada!", Toast.LENGTH_SHORT).show();
+                    android.util.Log.d("ZECA_DEBUG", "SUCESSO! Código: " + response.code());
+                    Toast.makeText(context, "Memória guardada com sucesso! 📸", Toast.LENGTH_SHORT).show();
+                } else {
+                    android.util.Log.e("ZECA_DEBUG", "ERRO NO SERVIDOR! Código: " + response.code());
+                    try {
+                        String erroBody = response.errorBody().string();
+                        android.util.Log.e("ZECA_DEBUG", "Detalhe do Erro: " + erroBody);
+                        Toast.makeText(context, "Erro: " + erroBody, Toast.LENGTH_LONG).show();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
             @Override
-            public void onFailure(Call<FotoMemoria> call, Throwable t) {}
+            public void onFailure(Call<FotoMemoria> call, Throwable t) {
+                android.util.Log.e("ZECA_DEBUG", "FALHA DE REDE: " + t.getMessage());
+                Toast.makeText(context, "Erro de rede: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
     /* ======================================================
-       MÉTODOS DE GESTÃO (EDITAR / REMOVER) [ADICIONADO]
+       MÉTODOS DE GESTÃO (EDITAR / REMOVER)
        ====================================================== */
 
-    // 1. Interface para ouvir a resposta (Sucesso ou Erro)
     public interface GestaoViagemListener {
         void onViagemRemovida();
         void onErro(String mensagem);
     }
 
-    // 2. Método para Apagar a Viagem na API
     public void removerViagemAPI(int idViagem, final GestaoViagemListener listener) {
         if (!isInternetAvailable()) {
             if (listener != null) listener.onErro("Sem ligação à internet.");
@@ -412,9 +453,7 @@ public class SingletonGestor {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
-                    // Remover da lista local para a UI atualizar logo se voltarmos atrás
                     removerViagemLocal(idViagem);
-
                     if (listener != null) listener.onViagemRemovida();
                 } else {
                     if (listener != null) listener.onErro("Erro API: " + response.code());
@@ -428,7 +467,6 @@ public class SingletonGestor {
         });
     }
 
-    // Método auxiliar para limpar da lista local em memória
     private void removerViagemLocal(int id) {
         if (viagens != null) {
             for (int i = 0; i < viagens.size(); i++) {
@@ -438,5 +476,35 @@ public class SingletonGestor {
                 }
             }
         }
+    }
+
+    /* ======================================================
+       CONFIGURAÇÃO DINÂMICA DE IMAGENS 📸
+       ====================================================== */
+
+    /**
+     * Este método é chamado pelo Adapter para saber onde buscar a imagem.
+     * Ele lê o IP configurado (Backend) e transforma no link do Frontend.
+     */
+    public String getUrlImagem(String nomeFotoNaBD) {
+        if (nomeFotoNaBD == null) return "";
+
+        SharedPreferences prefs = context.getSharedPreferences("DADOS_TRIPPLAN", Context.MODE_PRIVATE);
+
+        // 1. Ler o URL da API configurado (Default: Emulador)
+        String urlApi = prefs.getString("IP_API", "http://10.0.2.2:8888/TripPlan/tripplan/tripplan/backend/web/index.php/");
+
+        // 2. CIRURGIA: Trocar "backend/web/index.php/" por "frontend/web/"
+        // NOTA IMPORTANTE: Retirou-se o 'uploads/' no replace, porque a BD já traz isso.
+        // Assim ficamos com .../frontend/web/ + uploads/foto.jpg
+        String urlImagens = urlApi.replace("backend/web/index.php/", "frontend/web/uploads/");
+
+        // Caso o URL não tenha o index.php, tentamos outra substituição
+        if (urlImagens.equals(urlApi)) {
+            urlImagens = urlApi.replace("backend/web/", "frontend/web/uploads/");
+        }
+
+        // 3. Juntar o nome da foto (que já vem com "uploads/...")
+        return urlImagens + nomeFotoNaBD;
     }
 }

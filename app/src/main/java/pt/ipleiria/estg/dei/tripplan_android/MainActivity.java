@@ -34,10 +34,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, PerfilActivity.class));
                 return false; // Retorna false para não selecionar a aba, já que mudámos de ecrã
             }
-            // Se tiveres um botão "Viagens" extra, podes redirecionar para a Home também
-            else if (itemId == R.id.nav_trips) {
-                selectedFragment = new HomeFragment();
-            }
+
 
             // Trocar o Fragmento no ecrã
             if (selectedFragment != null) {

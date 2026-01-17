@@ -6,25 +6,55 @@ import java.io.Serializable;
 public class FotoMemoria implements Serializable {
     private int id;
 
-    @SerializedName("utilizador_id") // Se o backend precisar que envies manualmente
-    private int utilizadorId;
-
     @SerializedName("plano_viagem_id")
     private int planoViagemId;
 
     private String comentario;
 
-    // Nota: O ficheiro em si não é guardado neste objeto Java da mesma forma.
-    // A API vai devolver provavelmente o caminho (URL) da imagem no servidor depois do upload.
-    // Podes adicionar aqui um campo tipo: private String urlFoto;
+    // --- PARA ENVIAR (Upload) ---
+    @SerializedName("imagem_base64")
+    private String imagemBase64;
 
-    // Construtor para enviar (sem ID)
-    public FotoMemoria(int planoViagemId, String comentario) {
+    // --- PARA RECEBER (Download) ---
+    // Este é o campo que faltava e que o Adapter está a tentar ler!
+    @SerializedName("foto")
+    private String foto;
+
+    // Construtor
+    public FotoMemoria(int planoViagemId, String comentario, String imagemBase64) {
         this.planoViagemId = planoViagemId;
         this.comentario = comentario;
-        // O utilizadorId geralmente o backend tira do token de autenticação
+        this.imagemBase64 = imagemBase64;
     }
 
-    // Getters e Setters...
-    public String getComentario() { return comentario; }
+    // --- GETTERS E SETTERS ---
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getPlanoViagemId() {
+        return planoViagemId;
+    }
+
+    public String getComentario() {
+        return comentario;
+    }
+
+    public String getImagemBase64() {
+        return imagemBase64;
+    }
+
+    // --- O MÉTODO QUE O ADAPTER ESTÁ À PROCURA ---
+    public String getFoto() {
+        return foto;
+    }
+
+    public void setFoto(String foto) {
+        this.foto = foto;
+    }
 }

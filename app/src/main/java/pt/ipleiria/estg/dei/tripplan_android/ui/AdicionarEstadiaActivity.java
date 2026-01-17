@@ -5,9 +5,8 @@ import android.os.Bundle;
 import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-
 import java.util.Calendar;
-import java.util.Locale; // Importante para formatar a data
+import java.util.Locale;
 
 import pt.ipleiria.estg.dei.tripplan_android.R;
 import pt.ipleiria.estg.dei.tripplan_android.models.Estadia;
@@ -16,65 +15,71 @@ import pt.ipleiria.estg.dei.tripplan_android.models.SingletonGestor;
 public class AdicionarEstadiaActivity extends AppCompatActivity {
 
     private int idViagemAtual;
-    private EditText etCheckIn; // Variável global para acedermos no DatePicker
-    private final Calendar calendario = Calendar.getInstance(); // Objeto para gerir datas
+    private EditText etCheckIn;
+    private final Calendar calendar = Calendar.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_adicionar_estadia);
 
-        // 1. Receber o ID da Viagem
+        // 1. Receber ID da Viagem
         idViagemAtual = getIntent().getIntExtra("ID_VIAGEM", -1);
+        if (idViagemAtual == -1) {
+            Toast.makeText(this, "Erro: Viagem não encontrada", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
-        // 2. Ligar os campos do XML
+        // 2. Ligar Views
         EditText etNome = findViewById(R.id.etNomeEstadia);
-        EditText etTipo = findViewById(R.id.etMorada); // Estamos a usar este como "Tipo"
+        EditText etTipo = findViewById(R.id.etTipoEstadia);
         etCheckIn = findViewById(R.id.etCheckIn);
 
-        // 3. CONFIGURAR O CALENDÁRIO (Ao clicar no campo da data)
-        etCheckIn.setOnClickListener(v -> mostrarCalendario());
+        // 3. Configurar Data Check-in
+        configurarDatePicker(etCheckIn);
 
-        // 4. CONFIGURAR O BOTÃO DE GUARDAR
+        // 4. Botão Guardar
         findViewById(R.id.btnGuardarEstadia).setOnClickListener(v -> {
             String nome = etNome.getText().toString();
             String tipo = etTipo.getText().toString();
             String data = etCheckIn.getText().toString();
 
-            // Validação simples
             if (nome.isEmpty() || tipo.isEmpty() || data.isEmpty()) {
                 Toast.makeText(this, "Preenche todos os campos!", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // Criar o objeto (Atenção à ordem: nome, TIPO, DATA)
-            Estadia nova = new Estadia(0, idViagemAtual, nome, tipo, data);
+            // 5. CRIAR OBJETO ESTADIA
+            // Construtor: (id, planoViagemId, nomeAlojamento, tipo, dataCheckin)
+            Estadia novaEstadia = new Estadia(
+                    0,              // id
+                    idViagemAtual,  // planoViagemId
+                    nome,           // nomeAlojamento
+                    tipo,           // tipo
+                    data            // dataCheckin
+            );
 
-            // Enviar para a API
-            SingletonGestor.getInstance(this).adicionarEstadiaAPI(nova);
+            // Enviar para API
+            SingletonGestor.getInstance(this).adicionarEstadiaAPI(novaEstadia);
             finish();
         });
     }
 
-    private void mostrarCalendario() {
-        // Pega na data atual para abrir o calendário no dia de hoje
-        int ano = calendario.get(Calendar.YEAR);
-        int mes = calendario.get(Calendar.MONTH);
-        int dia = calendario.get(Calendar.DAY_OF_MONTH);
+    private void configurarDatePicker(EditText editText) {
+        editText.setFocusable(false);
+        editText.setClickable(true);
+        editText.setOnClickListener(v -> {
+            int ano = calendar.get(Calendar.YEAR);
+            int mes = calendar.get(Calendar.MONTH);
+            int dia = calendar.get(Calendar.DAY_OF_MONTH);
 
-        // Cria o pop-up do calendário
-        DatePickerDialog datePicker = new DatePickerDialog(this,
-                (view, year, month, dayOfMonth) -> {
-                    // O mês começa em 0 (Jan = 0), por isso somamos 1
-                    // Usamos String.format para garantir o zero à esquerda (ex: 05 em vez de 5)
-                    // Formato final: "2026-05-20"
-                    String dataFormatada = String.format(Locale.getDefault(), "%d-%02d-%02d", year, month + 1, dayOfMonth);
-
-                    // Escreve a data no campo de texto
-                    etCheckIn.setText(dataFormatada);
-                },
-                ano, mes, dia);
-
-        datePicker.show(); // Mostra o calendário no ecrã
+            DatePickerDialog dialog = new DatePickerDialog(this,
+                    (view, year, month, dayOfMonth) -> {
+                        String dataFormatada = String.format(Locale.getDefault(), "%d-%02d-%02d", year, month + 1, dayOfMonth);
+                        editText.setText(dataFormatada);
+                    }, ano, mes, dia);
+            dialog.show();
+        });
     }
 }

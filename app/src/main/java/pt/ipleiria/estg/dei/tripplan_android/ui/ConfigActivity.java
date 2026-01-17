@@ -7,13 +7,17 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+
 import pt.ipleiria.estg.dei.tripplan_android.R;
+import pt.ipleiria.estg.dei.tripplan_android.models.SingletonGestor; // <--- Importante!
 
 public class ConfigActivity extends AppCompatActivity {
 
-    // Constantes com os teus URLs exatos
-    private static final String URL_EMULADOR = "http://10.0.2.2:8888/tripplan/tripplan/tripplan/backend/web/index.php/";
-    private static final String URL_REAL = "http://192.168.1.237/tripplan-web/tripplan/backend/web/index.php/";
+    // --- CAMINHOS AJUSTADOS (BONECA RUSSA) ---
+    private static final String URL_EMULADOR = "http://10.0.2.2:8888/TripPlan/tripplan/tripplan/backend/web/index.php/";
+
+    // ATENÇÃO: Quando fores para a escola, confirma se o teu IP do PC é este!
+    private static final String URL_REAL = "http://192.168.1.237:8888/TripPlan/tripplan/tripplan/backend/web/index.php/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,39 +29,48 @@ public class ConfigActivity extends AppCompatActivity {
         Button btnEmulador = findViewById(R.id.btnPresetEmulador);
         Button btnReal = findViewById(R.id.btnPresetReal);
 
-        // 1. Carregar o que está guardado atualmente
         SharedPreferences prefs = getSharedPreferences("DADOS_TRIPPLAN", Context.MODE_PRIVATE);
-        String ipAtual = prefs.getString("IP_API", URL_EMULADOR); // Default é o emulador
+
+        // Carrega o IP que está guardado (ou o do emulador se não houver nada)
+        String ipAtual = prefs.getString("IP_API", URL_EMULADOR);
         etIp.setText(ipAtual);
 
-        // 2. Configurar Botão de Atalho EMULADOR
+        // --- BOTÕES DE ATALHO ---
         btnEmulador.setOnClickListener(v -> {
             etIp.setText(URL_EMULADOR);
-            Toast.makeText(this, "URL Emulador preenchido!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Predefinição Emulador carregada!", Toast.LENGTH_SHORT).show();
         });
 
-        // 3. Configurar Botão de Atalho REAL (Escola/Wi-Fi)
         btnReal.setOnClickListener(v -> {
             etIp.setText(URL_REAL);
-            Toast.makeText(this, "URL Wi-Fi preenchido!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Predefinição Wi-Fi carregada!", Toast.LENGTH_SHORT).show();
         });
 
-        // 4. Botão Guardar (Mantém a lógica que tinhas)
+        // --- BOTÃO GUARDAR ---
         btnSalvar.setOnClickListener(v -> {
-            String novoIp = etIp.getText().toString();
+            String novoIp = etIp.getText().toString().trim(); // .trim() remove espaços acidentais
 
-            // Validação simples: garantir que termina em "/"
+            // Validação: O Retrofit precisa que o URL termine em "/"
             if (!novoIp.endsWith("/")) {
                 novoIp += "/";
             }
 
             if (!novoIp.isEmpty()) {
+                // 1. Guardar nas Preferências
                 SharedPreferences.Editor editor = prefs.edit();
                 editor.putString("IP_API", novoIp);
+
+                // Opcional: Limpar o token para obrigar a fazer login de novo no novo servidor
+                // editor.remove("TOKEN_API");
+
                 editor.apply();
 
-                Toast.makeText(this, "Configuração Guardada!", Toast.LENGTH_SHORT).show();
-                finish(); // Fecha a janela e volta ao Login
+                // 2. AVISAR O SINGLETON (A LINHA MÁGICA 🪄)
+                // Isto obriga o Singleton a ler o novo IP e reconstruir o ServiceBuilder
+                SingletonGestor.getInstance(this).lerIpDasPreferencias();
+
+                Toast.makeText(this, "Configuração Guardada e API Reiniciada!", Toast.LENGTH_SHORT).show();
+                finish(); // Volta para o ecrã anterior
             } else {
                 Toast.makeText(this, "O URL não pode estar vazio", Toast.LENGTH_SHORT).show();
             }

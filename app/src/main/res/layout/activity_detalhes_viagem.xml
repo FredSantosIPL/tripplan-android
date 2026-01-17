@@ -22,19 +22,19 @@
                 android:id="@+id/tvTituloViagem"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="EuroTrip 2026"
+                android:text="Carregando..."
                 android:textColor="@color/white"
                 android:textSize="28sp"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/linearActions"
                 app:layout_constraintTop_toTopOf="parent"/>
 
             <TextView
                 android:id="@+id/tvDatasViagem"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="26 Dez - 08 Out"
+                android:text="--/-- a --/--"
                 android:textColor="#E0E0E0"
                 android:textSize="14sp"
                 android:layout_marginTop="8dp"
@@ -42,6 +42,7 @@
                 app:layout_constraintTop_toBottomOf="@id/tvTituloViagem"/>
 
             <LinearLayout
+                android:id="@+id/linearActions"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -87,7 +88,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
-                    android:layout_marginBottom="16dp">
+                    android:layout_marginBottom="8dp">
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -134,7 +135,51 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
-                    android:layout_marginBottom="16dp">
+                    android:layout_marginBottom="8dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Estadias"
+                        android:textStyle="bold"
+                        android:textSize="18sp"
+                        android:textColor="@color/text_title"/>
+                    <ImageView
+                        android:id="@+id/btnAddEstadia"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@android:drawable/ic_input_add"
+                        app:tint="@color/primary_blue"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/llListaEstadias"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@color/white">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="8dp">
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -178,7 +223,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
-                    android:layout_marginBottom="16dp">
+                    android:layout_marginBottom="8dp">
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -227,7 +272,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Memórias (Fotos)"
+                        android:text="Memórias"
                         android:textStyle="bold"
                         android:textSize="18sp"
                         android:textColor="@color/text_title"/>
@@ -239,15 +284,12 @@
                         app:tint="@color/primary_blue"/>
                 </LinearLayout>
 
-                <HorizontalScrollView
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvFotos"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-                    <LinearLayout
-                        android:id="@+id/llListaFotos"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"/>
-                </HorizontalScrollView>
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"/>
+
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
