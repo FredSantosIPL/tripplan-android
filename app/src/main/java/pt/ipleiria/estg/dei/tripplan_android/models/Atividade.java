@@ -17,7 +17,6 @@ public class Atividade implements Serializable {
 
     private String tipo;
 
-    // --- 1. CONSTRUTOR VAZIO (Obrigatório para o erro "Expected 5 arguments") ---
     public Atividade() {
     }
 
@@ -46,9 +45,6 @@ public class Atividade implements Serializable {
     public String getTipo() { return tipo; }
     public void setTipo(String tipo) { this.tipo = tipo; }
 
-    // --- 2. MÉTODOS DE COMPATIBILIDADE (Para o Helper não chorar) ---
-
-    // O Helper chama "setTitulo", mas tu tens "nomeAtividade". Isto resolve:
     public void setTitulo(String titulo) {
         this.nomeAtividade = titulo;
     }
@@ -57,7 +53,6 @@ public class Atividade implements Serializable {
         return this.nomeAtividade;
     }
 
-    // O Helper chama "setViagemId", mas tu tens "planoViagemId". Isto resolve:
     public void setViagemId(int id) {
         this.planoViagemId = id;
     }

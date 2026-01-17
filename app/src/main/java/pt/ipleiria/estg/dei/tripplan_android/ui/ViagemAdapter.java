@@ -30,7 +30,6 @@ public class ViagemAdapter extends RecyclerView.Adapter<ViagemAdapter.ViagemView
     @NonNull
     @Override
     public ViagemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Confirma se o nome do teu ficheiro XML é 'item_viagem' ou outro
         View view = LayoutInflater.from(context).inflate(R.layout.item_viagem, parent, false);
         return new ViagemViewHolder(view);
     }
@@ -39,18 +38,10 @@ public class ViagemAdapter extends RecyclerView.Adapter<ViagemAdapter.ViagemView
     public void onBindViewHolder(@NonNull ViagemViewHolder holder, int position) {
         Viagem viagemAtual = listaViagens.get(position);
 
-        // 1. Preencher os dados
         holder.textTitulo.setText(viagemAtual.getNomeViagem());
-
-        // Se quiseres mostrar as datas formatadas
         holder.textDatas.setText(viagemAtual.getDataInicio() + " -> " + viagemAtual.getDataFim());
-
-        // 2. AÇÃO DE CLIQUE (No cartão inteiro)
-        // Usamos 'holder.itemView' que representa todo o retângulo do item
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, DetalhesViagemActivity.class);
-
-            // IMPORTANTE: A chave tem de ser "ID_VIAGEM" para bater certo com a Activity de destino
             intent.putExtra("ID_VIAGEM", viagemAtual.getId());
 
             context.startActivity(intent);
@@ -62,7 +53,6 @@ public class ViagemAdapter extends RecyclerView.Adapter<ViagemAdapter.ViagemView
         return listaViagens.size();
     }
 
-    // Método extra útil para atualizar a lista se precisares depois (filtro/refresh)
     public void atualizarLista(List<Viagem> novaLista) {
         this.listaViagens = novaLista;
         notifyDataSetChanged();
@@ -76,12 +66,9 @@ public class ViagemAdapter extends RecyclerView.Adapter<ViagemAdapter.ViagemView
         public ViagemViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            // Ligar aos IDs que estão no teu XML (activity_ver_viagem.xml ou item_viagem.xml)
             textTitulo = itemView.findViewById(R.id.textTituloViagem);
             textDatas = itemView.findViewById(R.id.textDatas);
 
-            // Nota: Removi o btnVer porque no XML que enviaste era um CardView clicável,
-            // não tinha um botão específico. Se quiseres botão, tens de adicionar no XML.
         }
     }
 }

@@ -64,11 +64,6 @@ public class TripPlanBDHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    // =============================================================
-    //       A CORREÇÃO ESTÁ AQUI (MÉTODOS DE GUARDAR)
-    // =============================================================
-
-    // 1. GUARDAR LISTA DA HOME (Só atualiza a capa, NÃO TOCA NO RECHEIO)
     public void guardarViagensBD(ArrayList<Viagem> viagens, int userId) {
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -87,13 +82,10 @@ public class TripPlanBDHelper extends SQLiteOpenHelper {
             values.put(DATA_INICIO, v.getDataInicio());
             values.put(DATA_FIM, v.getDataFim());
             db.insert(TABLE_VIAGEM, null, values);
-
-            // --- REMOVI AQUI O guardarExtras! ---
-            // Assim a Home não apaga o que já tinhas guardado nos detalhes.
         }
     }
 
-    // 2. GUARDAR DETALHES (Este sim, guarda tudo!)
+    //guardar os detalhes
     public void atualizarViagemBD(Viagem v) {
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -134,10 +126,6 @@ public class TripPlanBDHelper extends SQLiteOpenHelper {
         }
     }
 
-    // =============================================================
-    //       MÉTODOS DE LER
-    // =============================================================
-
     public ArrayList<Viagem> getAllViagensBD(int userId) {
         ArrayList<Viagem> viagens = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -154,18 +142,14 @@ public class TripPlanBDHelper extends SQLiteOpenHelper {
 
                 Viagem v = new Viagem(id, userId, titulo, dataInicio, dataFim);
                 v.setDestino(destino);
-
-                // Carrega o recheio
                 v.setAtividades(lerAtividades(db, id));
                 v.setDestinos(lerDestinos(db, id));
-
                 viagens.add(v);
             } while (cursor.moveToNext());
         }
         cursor.close();
         return viagens;
     }
-
     private ArrayList<Atividade> lerAtividades(SQLiteDatabase db, int idViagem) {
         ArrayList<Atividade> lista = new ArrayList<>();
         Cursor c = db.query(TABLE_ATIVIDADE, null, FK_VIAGEM + "=?", new String[]{String.valueOf(idViagem)}, null, null, null);
@@ -191,7 +175,6 @@ public class TripPlanBDHelper extends SQLiteOpenHelper {
         c.close();
         return lista;
     }
-
     public void guardarUtilizadorBD(Utilizador user) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_UTILIZADOR, null, null);

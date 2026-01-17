@@ -48,19 +48,12 @@ public class SingletonGestor {
     private String usernameLogado;
     private String emailLogado;
 
-    // =============================================================
-    //       CONSTRUTOR & SINGLETON
-    // =============================================================
-
     private SingletonGestor(Context context){
         this.context = context;
         this.viagens = new ArrayList<>();
         this.listaFavoritos = new ArrayList<>();
 
-        // 1. Inicializar Base de Dados Local
         bdHelper = new TripPlanBDHelper(context);
-
-        // 2. Inicializar a API com o IP guardado (Dinâmico)
         lerIpDasPreferencias();
     }
 
@@ -71,27 +64,20 @@ public class SingletonGestor {
         return instance;
     }
 
-    // --- CONFIGURAÇÃO DINÂMICA DE IP ---
     public void lerIpDasPreferencias() {
         SharedPreferences prefs = context.getSharedPreferences("DADOS_TRIPPLAN", Context.MODE_PRIVATE);
 
         // URL Default (Emulador)
         String ipDefault = "http://10.0.2.2:8888/TripPlan/tripplan/tripplan/backend/web/index.php/";
         String ipGuardado = prefs.getString("IP_API", ipDefault);
-
-        // 1. Avisa o ServiceBuilder para atualizar o URL base
         ServiceBuilder.setUrlBase(ipGuardado);
 
-        // 2. Reconstrói o serviço Retrofit com o novo IP
         apiService = ServiceBuilder.buildService(TripplanAPI.class);
 
         android.util.Log.d("ZECA_API", "API Reiniciada com IP: " + ipGuardado);
     }
 
-    // =============================================================
     //       INTERFACES (LISTENERS)
-    // =============================================================
-
     public interface ViagensListener {
         void onRefreshLista(ArrayList<Viagem> listaViagens);
     }
@@ -104,7 +90,6 @@ public class SingletonGestor {
         void onRefreshFavoritos(ArrayList<Favorito> listaFavoritos);
         void onFavoritoAlterado();
     }
-
     public interface LoginListener {
         void onLoginSuccess();
         void onLoginError(String error);
@@ -123,10 +108,6 @@ public class SingletonGestor {
     public ArrayList<Viagem> getViagensLocais() {
         return new ArrayList<>(viagens);
     }
-
-    // =============================================================
-    //       GESTÃO DE SESSÃO
-    // =============================================================
 
     public void setUserIdLogado(int id) { this.userIdLogado = id; }
     public int getUserIdLogado() { return userIdLogado; }
@@ -161,12 +142,6 @@ public class SingletonGestor {
         this.viagens.clear();
         this.listaFavoritos.clear();
     }
-
-    // =============================================================
-    //       MÉTODOS DA API
-    // =============================================================
-
-    // 1. LISTAR VIAGENS
     public void getAllViagensAPI() {
         if (!isConnectionInternet(context)) {
             // Se não houver net, carrega da BD local
@@ -210,8 +185,6 @@ public class SingletonGestor {
             }
         });
     }
-
-    // 2. CRIAR VIAGEM
     public void adicionarViagemAPI(Viagem viagem) {
         Call<Viagem> call = apiService.adicionarViagem(viagem);
         call.enqueue(new Callback<Viagem>() {
@@ -233,7 +206,7 @@ public class SingletonGestor {
         });
     }
 
-    // 3. DETALHES DA VIAGEM
+    //DETALHES DA VIAGEM
     public void getViagemDetalhesAPI(int idViagem) {
         if (!isConnectionInternet(context)) {
             // Tenta buscar na lista local
@@ -338,9 +311,6 @@ public class SingletonGestor {
         return false;
     }
 
-    // =============================================================
-    //       MÉTODOS EXTRA (Transportes, Destinos, etc.)
-    // =============================================================
 
     public void adicionarTransporteAPI(Transporte transporte) {
         if (!isConnectionInternet(context)) return;
@@ -377,10 +347,6 @@ public class SingletonGestor {
             public void onFailure(Call<Estadia> call, Throwable t) {}
         });
     }
-
-    // =============================================================
-    //       FAVORITOS
-    // =============================================================
 
     public void getFavoritosAPI() {
         if (!isConnectionInternet(context)) return;
@@ -485,23 +451,16 @@ public class SingletonGestor {
 
     public int getFavoritoIdPorViagem(int idViagem) {
         if (listaFavoritos == null) {
-            // Se a lista for nula, tentamos carregar, mas por agora retornamos -1
-            // para não rebentar. O ideal é que getFavoritosAPI() seja chamado no onResume
             return -1;
         }
 
         for (Favorito f : listaFavoritos) {
-            // Verificamos se o destino_id (planoViagemId) bate certo
             if (f.getPlanoViagemId() == idViagem) {
-                return f.getId(); // Retorna o ID do favorito para podermos apagar depois
+                return f.getId();
             }
         }
         return -1;
     }
-
-    // =============================================================
-    //       FOTOS (MEMÓRIAS - BASE64) 📸
-    // =============================================================
 
     public void adicionarFotoAPI(FotoMemoria foto) {
         if (!isConnectionInternet(context)) {
@@ -528,10 +487,6 @@ public class SingletonGestor {
             }
         });
     }
-
-    // =============================================================
-    //       REMOVER VIAGEM
-    // =============================================================
 
     public void removerViagemAPI(int idViagem, final GestaoViagemListener listener) {
         if (!isConnectionInternet(context)) {
@@ -565,10 +520,6 @@ public class SingletonGestor {
         }
     }
 
-    // =============================================================
-    //       UTILITÁRIOS (Internet & URL Imagens)
-    // =============================================================
-
     public static boolean isConnectionInternet(Context context) {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = cm.getActiveNetworkInfo();
@@ -597,10 +548,6 @@ public class SingletonGestor {
 
         return urlImagens + nomeFotoNaBD;
     }
-
-    // =============================================================
-    //       BASE DE DADOS LOCAL (HELPER)
-    // =============================================================
 
     private void openDatabase(){
         if(database == null || !database.isOpen()){
@@ -635,15 +582,13 @@ public class SingletonGestor {
         }
         return user;
     }
-
-    // Método para editar a viagem na API e atualizar a lista local
+    
     public void editarViagemAPI(Viagem viagem, final GestaoViagemListener listener) {
         if (!isConnectionInternet(context)) {
             if (listener != null) listener.onErro("Sem ligação à internet.");
             return;
         }
 
-        // O método atualizarViagem já existe na tua TripplanAPI
         apiService.atualizarViagem(viagem.getId(), viagem).enqueue(new Callback<Viagem>() {
             @Override
             public void onResponse(Call<Viagem> call, Response<Viagem> response) {
@@ -655,7 +600,7 @@ public class SingletonGestor {
                             break;
                         }
                     }
-                    // Usamos o listener que já tinhas para avisar o sucesso
+
                     if (listener != null) listener.onViagemRemovida();
                 } else {
                     if (listener != null) listener.onErro("Erro ao atualizar: " + response.code());

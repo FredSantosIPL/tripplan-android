@@ -20,7 +20,6 @@ public class Destino implements Serializable {
     @SerializedName("data_chegada")
     private String dataChegada;
 
-    // --- 1. CONSTRUTOR VAZIO (OBRIGATÓRIO para o Helper) ---
     public Destino() {
     }
 
@@ -53,9 +52,6 @@ public class Destino implements Serializable {
     public String getDataChegada() { return dataChegada; }
     public void setDataChegada(String dataChegada) { this.dataChegada = dataChegada; }
 
-    // --- 2. MÉTODOS DE COMPATIBILIDADE (Para o Helper não chorar) ---
-
-    // O Helper chama "setCidade", mas tu tens "nomeCidade". Isto resolve:
     public void setCidade(String cidade) {
         this.nomeCidade = cidade;
     }

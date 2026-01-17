@@ -27,7 +27,7 @@ public class AdicionarFotoActivity extends AppCompatActivity {
 
     private int idViagemAtual;
     private ImageView imgPreview;
-    private Uri imagemSelecionadaUri = null; // Guarda o caminho da foto
+    private Uri imagemSelecionadaUri = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +44,7 @@ public class AdicionarFotoActivity extends AppCompatActivity {
         imgPreview = findViewById(R.id.imgPreview);
         EditText etDescricao = findViewById(R.id.etDescricao);
 
-        // 1. CONFIGURAR GALERIA
+
         ActivityResultLauncher<Intent> launcherGaleria = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
@@ -63,7 +63,6 @@ public class AdicionarFotoActivity extends AppCompatActivity {
             launcherGaleria.launch(intent);
         });
 
-        // 2. BOTÃO GUARDAR
         findViewById(R.id.btnGuardarFoto).setOnClickListener(v -> {
             String descricao = etDescricao.getText().toString();
 
@@ -72,7 +71,6 @@ public class AdicionarFotoActivity extends AppCompatActivity {
                 return;
             }
 
-            // CONVERTER A IMAGEM EM TEXTO (Base64)
             String imagemString = converterImagemParaBase64(imagemSelecionadaUri);
 
             if (imagemString == null) {
@@ -80,29 +78,23 @@ public class AdicionarFotoActivity extends AppCompatActivity {
                 return;
             }
 
-            // CRIAR O OBJETO COMPLETO
             FotoMemoria novaMemoria = new FotoMemoria(
                     idViagemAtual,
                     descricao,
-                    imagemString // Aqui vai a "tripa" de código da imagem
+                    imagemString
             );
 
-            // Enviar para a API
             SingletonGestor.getInstance(this).adicionarFotoAPI(novaMemoria);
             finish();
         });
     }
 
-    // --- MÉTODO MÁGICO DO ZECA ---
-    // Transforma URI -> Bitmap -> Resize -> Base64 String
     private String converterImagemParaBase64(Uri imageUri) {
         try {
-            // 1. Ler a imagem da galeria
+
             InputStream inputStream = getContentResolver().openInputStream(imageUri);
             Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
 
-            // 2. Redimensionar se for muito grande (para não entupir a rede/memória)
-            // Se a largura for maior que 1000px, reduzimos
             int maxDimension = 1000;
             if (bitmap.getWidth() > maxDimension || bitmap.getHeight() > maxDimension) {
                 float scale = Math.min((float) maxDimension / bitmap.getWidth(), (float) maxDimension / bitmap.getHeight());
@@ -111,18 +103,15 @@ public class AdicionarFotoActivity extends AppCompatActivity {
                 bitmap = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true);
             }
 
-            // 3. Comprimir para JPEG e converter para Bytes
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream); // Qualidade 70%
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream);
             byte[] imageBytes = outputStream.toByteArray();
 
-            // 4. Converter Bytes para String Base64
-            // O flag NO_WRAP evita quebras de linha que podem baralhar o servidor
             return Base64.encodeToString(imageBytes, Base64.NO_WRAP);
 
         } catch (Exception e) {
             e.printStackTrace();
-            return null; // Deu erro
+            return null;
         }
     }
 }

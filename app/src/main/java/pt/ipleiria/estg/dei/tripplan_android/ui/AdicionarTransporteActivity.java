@@ -26,7 +26,6 @@ public class AdicionarTransporteActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_adicionar_transporte);
 
-        // 1. Receber ID da Viagem
         idViagemAtual = getIntent().getIntExtra("ID_VIAGEM", -1);
         if (idViagemAtual == -1) {
             Toast.makeText(this, "Erro: Viagem não identificada", Toast.LENGTH_SHORT).show();
@@ -34,31 +33,26 @@ public class AdicionarTransporteActivity extends AppCompatActivity {
             return;
         }
 
-        // 2. Ligar Views
         Spinner spTipo = findViewById(R.id.spTipoTransporte);
         EditText etOrigem = findViewById(R.id.etOrigem);
         EditText etDestino = findViewById(R.id.etDestino);
         etDataPartida = findViewById(R.id.etDataPartida);
 
-        // 3. Configurar UI
         configurarSpinner(spTipo);
         configurarDatePicker(etDataPartida);
 
-        // 4. Botão Guardar
         findViewById(R.id.btnGuardarTransporte).setOnClickListener(v -> {
             String tipo = spTipo.getSelectedItem().toString();
             String origem = etOrigem.getText().toString();
             String destino = etDestino.getText().toString();
             String data = etDataPartida.getText().toString();
 
-            // Validação
+
             if (origem.isEmpty() || destino.isEmpty() || data.isEmpty()) {
                 Toast.makeText(this, "Preenche todos os campos!", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // 5. CRIAR O OBJETO COM O TEU MODELO NOVO
-            // Construtor: (id, planoViagemId, tipo, origem, destino, dataPartida)
             Transporte novoTransporte = new Transporte(
                     0,              // id (API trata)
                     idViagemAtual,  // plano_viagem_id

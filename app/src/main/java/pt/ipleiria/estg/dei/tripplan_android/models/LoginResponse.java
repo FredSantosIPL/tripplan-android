@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName;
 
 public class LoginResponse {
 
-    // --- CAMPOS QUE VÊM DO PHP ---
+
 
     // 1. O PHP envia "token", não "auth_key"
     @SerializedName("token")

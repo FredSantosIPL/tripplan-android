@@ -9,7 +9,6 @@ public class Estadia implements Serializable {
     @SerializedName("destino_id")
     private int destinoId;
 
-    // NOVO CAMPO: Para ativarmos a lógica inteligente no PHP
     @SerializedName("plano_viagem_id")
     private int planoViagemId;
 
@@ -24,8 +23,8 @@ public class Estadia implements Serializable {
     // Construtor Atualizado
     public Estadia(int id, int planoViagemId, String nomeAlojamento, String tipo, String dataCheckin) {
         this.id = id;
-        this.destinoId = 0; // Enviamos 0 para o PHP saber que tem de procurar o destino sozinho
-        this.planoViagemId = planoViagemId; // Aqui vai o ID da Viagem
+        this.destinoId = 0;
+        this.planoViagemId = planoViagemId;
         this.nomeAlojamento = nomeAlojamento;
         this.tipo = tipo;
         this.dataCheckin = dataCheckin;

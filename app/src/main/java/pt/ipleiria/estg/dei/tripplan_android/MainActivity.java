@@ -23,8 +23,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         BottomNavigationView bottomNav = findViewById(R.id.bottomNavigation);
-
-        // Configurar o Listener do Menu
         bottomNav.setOnItemSelectedListener(item -> {
             Fragment selectedFragment = null;
             int itemId = item.getItemId();
@@ -36,13 +34,11 @@ public class MainActivity extends AppCompatActivity {
                 selectedFragment = new FavoritosFragment();
             }
             else if (itemId == R.id.nav_profile) {
-                // O Perfil continua a ser uma Activity, por isso usamos Intent
+
                 startActivity(new Intent(MainActivity.this, PerfilActivity.class));
-                return false; // Retorna false para não selecionar a aba, já que mudámos de ecrã
+                return false;
             }
 
-
-            // Trocar o Fragmento no ecrã
             if (selectedFragment != null) {
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.fragment_container, selectedFragment)
@@ -53,7 +49,6 @@ public class MainActivity extends AppCompatActivity {
             return false;
         });
 
-        // Carregar a HOME por defeito quando a app abre (se não houver estado salvo)
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, new HomeFragment())

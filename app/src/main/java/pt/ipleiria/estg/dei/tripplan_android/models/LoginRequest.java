@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName;
 
 public class LoginRequest {
     // Estes nomes têm de ser iguais aos que o teu PHP espera no $_POST
-    @SerializedName("username") // ou "email", depende do teu LoginForm no Yii2
+    @SerializedName("username")
     private String username;
 
     @SerializedName("password")

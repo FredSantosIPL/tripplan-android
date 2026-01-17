@@ -44,7 +44,7 @@ public class Viagem implements Serializable {
         this.listaFotos = new ArrayList<>();
     }
 
-    // --- 2. CONSTRUTOR COMPLETO ---
+    //CONSTRUTOR COMPLETO
     public Viagem(int id, int user_id, String nomeViagem, String dataInicio, String dataFim) {
         this.id = id;
         this.user_id = user_id;
@@ -52,7 +52,7 @@ public class Viagem implements Serializable {
         this.dataInicio = dataInicio;
         this.dataFim = dataFim;
 
-        // Inicializar listas para evitar crashe se estiverem null
+
         this.destinos = new ArrayList<>();
         this.transportes = new ArrayList<>();
         this.estadias = new ArrayList<>();
@@ -80,9 +80,6 @@ public class Viagem implements Serializable {
 
     public void setDestino(String destino) { this.destino = destino; }
     public String getDestino() { return this.destino; }
-
-    // --- 3. A PARTE QUE FALTAVA (OS SETTERS DAS LISTAS) ---
-    // Sem isto, o Helper não consegue guardar o que leu da BD dentro da Viagem
 
     public ArrayList<Destino> getDestinos() { return destinos; }
     public void setDestinos(ArrayList<Destino> destinos) { this.destinos = destinos; }

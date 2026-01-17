@@ -7,12 +7,9 @@ public class Utilizador implements Serializable {
     private String nome;
     private String email;
     private String password;
-    // Telefone e Morada removidos!
-
     public Utilizador() {
     }
 
-    // CONSTRUTOR SÓ COM 4 COISAS (Para bater certo com o Singleton)
     public Utilizador(int id, String nome, String email, String password) {
         this.id = id;
         this.nome = nome;

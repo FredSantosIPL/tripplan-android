@@ -31,15 +31,14 @@ public class AdicionarEstadiaActivity extends AppCompatActivity {
             return;
         }
 
-        // 2. Ligar Views
         EditText etNome = findViewById(R.id.etNomeEstadia);
         EditText etTipo = findViewById(R.id.etTipoEstadia);
         etCheckIn = findViewById(R.id.etCheckIn);
 
-        // 3. Configurar Data Check-in
+        //Data Check-in
         configurarDatePicker(etCheckIn);
 
-        // 4. Botão Guardar
+        //Botão Guardar
         findViewById(R.id.btnGuardarEstadia).setOnClickListener(v -> {
             String nome = etNome.getText().toString();
             String tipo = etTipo.getText().toString();
@@ -50,8 +49,6 @@ public class AdicionarEstadiaActivity extends AppCompatActivity {
                 return;
             }
 
-            // 5. CRIAR OBJETO ESTADIA
-            // Construtor: (id, planoViagemId, nomeAlojamento, tipo, dataCheckin)
             Estadia novaEstadia = new Estadia(
                     0,              // id
                     idViagemAtual,  // planoViagemId

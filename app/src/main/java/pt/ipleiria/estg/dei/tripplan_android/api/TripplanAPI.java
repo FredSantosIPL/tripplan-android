@@ -49,11 +49,6 @@ public interface TripplanAPI {
     @DELETE("api/trips/{id}")
     Call<Void> apagarViagem(@Path("id") int id);
 
-    /* --- SUB-ENTIDADES --- */
-    /* Nota: Se o servidor der erro 404 nestes, experimenta adicionar 's'
-       (ex: api/transportes), porque o Yii2 gosta de plurais.
-       Mas mantive como tinhas. */
-
     @POST("api/transporte")
     Call<Transporte> adicionarTransporte(@Body Transporte transporte);
 
@@ -83,5 +78,4 @@ public interface TripplanAPI {
 
     @POST("api/fotos-memorias")
     Call<FotoMemoria> adicionarFoto(@Body FotoMemoria foto);
-
 }

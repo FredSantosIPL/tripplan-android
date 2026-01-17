@@ -66,14 +66,12 @@ public class LoginActivity extends AppCompatActivity {
 
                     if (loginResponse != null && loginResponse.getToken() != null) {
 
-                        // --- CORREÇÃO AQUI ---
+
                         int userId = loginResponse.getId();
                         String token = loginResponse.getToken();
 
-                        // 1. Instanciar o Gestor numa variável
                         SingletonGestor gestor = SingletonGestor.getInstance(LoginActivity.this);
 
-                        // 2. Usar a variável para guardar os dados
                         gestor.setUserIdLogado(userId);
                         gestor.setToken(token);
                         gestor.setUsernameLogado(loginResponse.getUsername());
@@ -81,7 +79,6 @@ public class LoginActivity extends AppCompatActivity {
 
                         Toast.makeText(LoginActivity.this, "Bem-vindo!", Toast.LENGTH_SHORT).show();
 
-                        // 3. Mudar de Activity
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                         startActivity(intent);
                         finish();

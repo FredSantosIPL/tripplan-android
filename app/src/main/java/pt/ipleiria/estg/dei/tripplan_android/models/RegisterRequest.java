@@ -4,7 +4,6 @@ import com.google.gson.annotations.SerializedName;
 
 public class RegisterRequest {
 
-
     @SerializedName("username")
     private String nome;
 

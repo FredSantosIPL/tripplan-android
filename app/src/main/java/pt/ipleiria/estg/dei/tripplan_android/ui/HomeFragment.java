@@ -18,24 +18,22 @@ import pt.ipleiria.estg.dei.tripplan_android.models.SingletonGestor;
 import pt.ipleiria.estg.dei.tripplan_android.models.Viagem;
 
 
-public class HomeFragment extends Fragment implements SingletonGestor.ViagensListener { // <--- IMPORTANTE
+public class HomeFragment extends Fragment implements SingletonGestor.ViagensListener {
 
     private FragmentHomeBinding binding;
-    private ViagemAdapter adapter; // <--- DESCOMENTA ISTO QUANDO TIVERES O ADAPTER
+    private ViagemAdapter adapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        // 1. Configurar a Lista (Exemplo com ListView)
         adapter = new ViagemAdapter(getContext(), new ArrayList<>());
         binding.recyclerViewViagens.setAdapter(adapter);
 
         binding.fabAdicionar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Abre a atividade de criação de viagem
                 Intent intent = new Intent(getContext(), CriarViagemActivity.class);
                 startActivity(intent);
             }
@@ -47,7 +45,6 @@ public class HomeFragment extends Fragment implements SingletonGestor.ViagensLis
     @Override
     public void onStart() {
         super.onStart();
-        // 2. Quando o fragmento aparece, pede os dados!
         SingletonGestor.getInstance(getContext()).setViagensListener(this);
         SingletonGestor.getInstance(getContext()).getAllViagensAPI();
     }
@@ -57,12 +54,9 @@ public class HomeFragment extends Fragment implements SingletonGestor.ViagensLis
         if (listaViagens != null) {
             Toast.makeText(getContext(), "HOME: Carreguei " + listaViagens.size() + " viagens!", Toast.LENGTH_SHORT).show();
 
-            // EM VEZ DE setViagens, FAZEMOS UM NOVO ADAPTER:
             adapter = new ViagemAdapter(getContext(), listaViagens);
 
-
             binding.recyclerViewViagens.setLayoutManager(new LinearLayoutManager(getContext()));
-            // ATENÇÃO: Confirma se o nome 'lvViagens' está certo aqui! (Passo 1)
             binding.recyclerViewViagens.setAdapter(adapter);
         }
     }

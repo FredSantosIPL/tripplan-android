@@ -33,7 +33,6 @@ public class Favorito implements Serializable {
         return userId;
     }
 
-    // Mantemos o getter com este nome porque já alterámos o Adapter e a Activity para o usar
     public int getPlanoViagemId() {
         return planoViagemId;
     }

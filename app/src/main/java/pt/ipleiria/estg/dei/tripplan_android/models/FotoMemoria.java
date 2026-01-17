@@ -16,7 +16,6 @@ public class FotoMemoria implements Serializable {
     private String imagemBase64;
 
     // --- PARA RECEBER (Download) ---
-    // Este é o campo que faltava e que o Adapter está a tentar ler!
     @SerializedName("foto")
     private String foto;
 

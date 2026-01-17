@@ -33,3 +33,5 @@ local.properties
 app/src/main/java/pt/ipleiria/estg/dei/tripplan_android/api/ServiceBuilder.java
 >>>>>>> Stashed changes
 /.gradle
+
+*.probe
