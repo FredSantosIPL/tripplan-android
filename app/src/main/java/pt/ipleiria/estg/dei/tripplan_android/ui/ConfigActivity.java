@@ -17,7 +17,7 @@ public class ConfigActivity extends AppCompatActivity {
     private static final String URL_EMULADOR = "http://10.0.2.2:8888/TripPlan/tripplan/tripplan/backend/web/index.php/";
 
     // ATENÇÃO: Quando fores para a escola, confirma se o teu IP do PC é este!
-    private static final String URL_REAL = "http://192.168.1.237:8888/TripPlan/tripplan/tripplan/backend/web/index.php/";
+    private static final String URL_REAL = "http://172.22.21.246/tripplan-web/tripplan/backend/web/index.php/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

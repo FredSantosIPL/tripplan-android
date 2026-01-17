@@ -34,7 +34,7 @@
         android:id="@+id/btnPresetReal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Usar Wi-Fi / Escola (192.168...)"
+        android:text="Usar Wi-Fi / Escola "
         android:backgroundTint="#4CAF50"
         android:textColor="#FFF"
         android:layout_marginBottom="24dp"/>
