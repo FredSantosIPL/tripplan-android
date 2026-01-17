@@ -1,7 +1,7 @@
-package pt.ipleiria.estg.dei.tripplan_android.ui;
+package pt.ipleiria.estg.dei.tripplan_android.ui; // <-- Confirma o package
 
 import android.content.Context;
-import android.util.Log;
+import android.util.Log; // Import do Log
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,17 +13,18 @@ import com.bumptech.glide.Glide;
 import java.util.ArrayList;
 import pt.ipleiria.estg.dei.tripplan_android.R;
 import pt.ipleiria.estg.dei.tripplan_android.models.FotoMemoria;
-import pt.ipleiria.estg.dei.tripplan_android.models.SingletonGestor; // Importante!
 
 public class FotosAdapter extends RecyclerView.Adapter<FotosAdapter.ViewHolder> {
 
     private Context context;
     private ArrayList<FotoMemoria> listaFotos;
 
-    // JÁ NÃO PRECISAMOS DESTA CONSTANTE AQUI!
-    // O Singleton trata disso. Adeus hardcode! 👋
-    // private static final String BASE_URL_IMAGENS = "...";
-
+    // --- ATENÇÃO AQUI ZEZOCA ---
+    // 1. IP 10.0.2.2 é para o Emulador (Aponta para o localhost do teu PC)
+    // 2. Porta :8888 é o padrão do MAMP. Se usares XAMPP remove o ":8888"
+    // 3. NÃO metas 'uploads/' no fim, porque a base de dados já traz isso!
+// O SEGREDO FINAL 🗝️
+    private static final String BASE_URL_IMAGENS = "http://10.0.2.2:8888/TripPlan/tripplan/tripplan/frontend/web/uploads/";
     public FotosAdapter(Context context, ArrayList<FotoMemoria> listaFotos) {
         this.context = context;
         this.listaFotos = listaFotos;
@@ -42,15 +43,15 @@ public class FotosAdapter extends RecyclerView.Adapter<FotosAdapter.ViewHolder> 
 
         holder.tvComentario.setText(foto.getComentario());
 
-        // Verifica se a foto existe
+        // Verifica se o nome da foto existe
         if (foto.getFoto() != null && !foto.getFoto().isEmpty()) {
 
-            // --- AQUI ESTÁ A MAGIA DINÂMICA --- 🪄
-            // Pedimos ao Singleton para gerar o URL com base na configuração atual (Wi-Fi ou Emulador)
-            String urlCompleta = SingletonGestor.getInstance(context).getUrlImagem(foto.getFoto());
+            // Monta o Link: http://.../web/ + uploads/memoria.jpg
+            String urlCompleta = BASE_URL_IMAGENS + foto.getFoto();
 
-            // Log para confirmares que o link está a mudar bem
-            Log.d("ZECA_GLIDE", "Link Gerado Dinamicamente: " + urlCompleta);
+            // --- DEBUG: VAI AO LOGCAT E PROCURA POR "ZECA_GLIDE" ---
+            // Copia o link que aparecer lá e cola no navegador do PC para testar
+            Log.d("ZECA_GLIDE", "Link da Imagem: " + urlCompleta);
 
             Glide.with(context)
                     .load(urlCompleta)

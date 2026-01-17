@@ -64,13 +64,16 @@ public interface TripplanAPI {
     Call<Estadia> adicionarEstadia(@Body Estadia estadia);
 
     /* --- FAVORITOS --- */
-    @GET("api/favoritos")
-    Call<List<Favorito>> getFavoritos(@Query("user_id") int userId);
+    @GET("api/favorito")
+    Call<List<Favorito>> getFavoritos(
+            @Query("user_id") int userId,
+            @Query("expand") String expand
+    );
 
-    @POST("api/favoritos")
+    @POST("api/favorito")
     Call<Favorito> adicionarFavorito(@Body Favorito favorito);
 
-    @DELETE("api/favoritos/{id}")
+    @DELETE("api/favorito/{id}")
     Call<Void> removerFavorito(@Path("id") int id);
 
     /* --- FOTOS / MEMÓRIAS --- */

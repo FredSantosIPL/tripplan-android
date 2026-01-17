@@ -24,6 +24,7 @@ public class FavoritosAdapter extends RecyclerView.Adapter<FavoritosAdapter.View
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        // Certifica-te que tens o layout 'item_favorito.xml' ou muda para 'item_linha_simples'
         View view = LayoutInflater.from(context).inflate(R.layout.item_favorito, parent, false);
         return new ViewHolder(view);
     }
@@ -32,9 +33,20 @@ public class FavoritosAdapter extends RecyclerView.Adapter<FavoritosAdapter.View
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Favorito fav = favoritos.get(position);
 
-        // Se a API devolver o objeto Destino dentro do Favorito, podes fazer fav.getDestino().getNome()
-        // Por agora, mostramos o ID para testar
-        holder.tvDestino.setText("Destino Favorito #" + fav.getDestinoId());
+        if (fav.getViagem() != null) {
+            // Se no teu model Viagem.java o campo for getNomeViagem()
+            // Se der erro, tenta fav.getViagem().getNome() ou o que tiveres lá
+            String nome = fav.getViagem().getNomeViagem();
+
+            if (nome != null && !nome.isEmpty()) {
+                holder.tvDestino.setText(nome);
+            } else {
+                holder.tvDestino.setText("Viagem sem nome");
+            }
+        } else {
+            // Se chegar aqui, o 'expand' falhou no PHP
+            holder.tvDestino.setText("ID Viagem: #" + fav.getPlanoViagemId());
+        }
     }
 
     @Override
@@ -52,6 +64,7 @@ public class FavoritosAdapter extends RecyclerView.Adapter<FavoritosAdapter.View
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
+            // Confirma se este ID existe no teu layout item_favorito.xml
             tvDestino = itemView.findViewById(R.id.tvFavoritoDestino);
         }
     }

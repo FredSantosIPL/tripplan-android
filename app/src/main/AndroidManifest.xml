@@ -41,9 +41,7 @@
             android:exported="false"
             android:label="Nova Foto"/>
 
-        <activity android:name=".ui.FavoritosActivity"
-            android:exported="false"
-            android:label="Favoritos"/>
+
 
         <activity android:name=".ui.PerfilActivity"
             android:exported="false"
