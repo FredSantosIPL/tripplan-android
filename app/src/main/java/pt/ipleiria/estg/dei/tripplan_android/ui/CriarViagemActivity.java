@@ -7,6 +7,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 
@@ -23,8 +24,6 @@ public class CriarViagemActivity extends AppCompatActivity {
 
     private ActivityCriarViagemBinding binding;
     private final Calendar calendar = Calendar.getInstance();
-
-    // Variável para saber se estamos a editar (vem do Intent)
     private int idViagemEditar = -1;
 
     @Override
@@ -33,16 +32,26 @@ public class CriarViagemActivity extends AppCompatActivity {
         binding = ActivityCriarViagemBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // 0. Verificar se é Edição (Opcional, mas já fica preparado)
         idViagemEditar = getIntent().getIntExtra("ID_VIAGEM_EDITAR", -1);
+
+        // --- 0. LÓGICA DE EDIÇÃO: Preencher campos ---
         if(idViagemEditar != -1) {
             binding.tvTituloPagina.setText("Editar Viagem");
             binding.btnGuardar.setText("ATUALIZAR");
-            // Aqui poderias carregar os dados antigos para os campos...
+
+            // Vamos buscar a viagem à lista local no Singleton para preencher os campos
+            ArrayList<Viagem> viagens = SingletonGestor.getInstance(this).getViagensLocais();
+            for (Viagem v : viagens) {
+                if (v.getId() == idViagemEditar) {
+                    binding.etTitulo.setText(v.getNomeViagem());
+                    binding.etDataInicio.setText(v.getDataInicio());
+                    binding.etDataFim.setText(v.getDataFim());
+                    break;
+                }
+            }
         }
 
-        // 1. Configurar os cliques nos campos de data (agora clica-se na caixa inteira)
-        // Impedir o teclado de abrir nas datas
+        // --- 1. CONFIGURAÇÃO DE DATAS ---
         binding.etDataInicio.setFocusable(false);
         binding.etDataInicio.setClickable(true);
         binding.etDataFim.setFocusable(false);
@@ -51,11 +60,10 @@ public class CriarViagemActivity extends AppCompatActivity {
         configurarDatePicker(binding.etDataInicio);
         configurarDatePicker(binding.etDataFim);
 
-        // 2. Configurar Botão Guardar (Novo ID: btnGuardar)
+        // --- 2. BOTÃO GUARDAR / ATUALIZAR ---
         binding.btnGuardar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Novos IDs: etTitulo
                 String nome = binding.etTitulo.getText().toString();
                 String dataInicio = binding.etDataInicio.getText().toString();
                 String dataFim = binding.etDataFim.getText().toString();
@@ -66,14 +74,12 @@ public class CriarViagemActivity extends AppCompatActivity {
                     if(idViagemEditar == -1) {
                         enviarViagemParaAPI(nome, dataInicio, dataFim);
                     } else {
-                        // TODO: Implementar lógica de editar se quiseres
-                        Toast.makeText(CriarViagemActivity.this, "Modo edição não implementado totalmente.", Toast.LENGTH_SHORT).show();
+                        // Chamamos o novo método de atualização
+                        atualizarViagemNaAPI(nome, dataInicio, dataFim);
                     }
                 }
             }
         });
-
-        // Se tiveres botão de voltar no layout (no moderno não puseste, usa-se o do telemóvel)
     }
 
     private void enviarViagemParaAPI(String nomeViagem, String dataInicio, String dataFim) {
@@ -101,6 +107,34 @@ public class CriarViagemActivity extends AppCompatActivity {
         });
     }
 
+    // --- NOVO MÉTODO PARA ATUALIZAR ---
+    private void atualizarViagemNaAPI(String nomeViagem, String dataInicio, String dataFim) {
+        int userId = SingletonGestor.getInstance(this).getUserIdLogado();
+        // Criamos o objeto com o ID que recebemos do Intent para a API saber o que editar
+        Viagem viagemEditada = new Viagem(idViagemEditar, userId, nomeViagem, dataInicio, dataFim);
+
+        TripplanAPI service = ServiceBuilder.buildService(TripplanAPI.class);
+        // Usamos o método PUT da tua interface API
+        Call<Viagem> call = service.atualizarViagem(idViagemEditar, viagemEditada);
+
+        call.enqueue(new Callback<Viagem>() {
+            @Override
+            public void onResponse(Call<Viagem> call, Response<Viagem> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(CriarViagemActivity.this, "Viagem atualizada!", Toast.LENGTH_SHORT).show();
+                    finish(); // Fecha e volta para os detalhes
+                } else {
+                    Toast.makeText(CriarViagemActivity.this, "Erro ao atualizar: " + response.code(), Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Viagem> call, Throwable t) {
+                Toast.makeText(CriarViagemActivity.this, "Erro rede: " + t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
     private void configurarDatePicker(EditText editText) {
         editText.setOnClickListener(v -> {
             int ano = calendar.get(Calendar.YEAR);
@@ -109,7 +143,6 @@ public class CriarViagemActivity extends AppCompatActivity {
 
             DatePickerDialog datePicker = new DatePickerDialog(CriarViagemActivity.this,
                     (view, year, month, dayOfMonth) -> {
-                        // Formato SQL: AAAA-MM-DD
                         String dataFormatada = String.format(Locale.getDefault(), "%d-%02d-%02d", year, month + 1, dayOfMonth);
                         editText.setText(dataFormatada);
                     }, ano, mes, dia);

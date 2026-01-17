@@ -1,5 +1,6 @@
 package pt.ipleiria.estg.dei.tripplan_android.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,6 +31,15 @@ public class HomeFragment extends Fragment implements SingletonGestor.ViagensLis
         // 1. Configurar a Lista (Exemplo com ListView)
         adapter = new ViagemAdapter(getContext(), new ArrayList<>());
         binding.recyclerViewViagens.setAdapter(adapter);
+
+        binding.fabAdicionar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Abre a atividade de criação de viagem
+                Intent intent = new Intent(getContext(), CriarViagemActivity.class);
+                startActivity(intent);
+            }
+        });
 
         return root;
     }

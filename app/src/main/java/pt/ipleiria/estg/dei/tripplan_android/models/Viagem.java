@@ -19,7 +19,9 @@ public class Viagem implements Serializable {
     private String dataFim;
 
     // --- LISTAS ---
+    @SerializedName("destinos")
     private ArrayList<Destino> destinos;
+    @SerializedName("transportes")
     private ArrayList<Transporte> transportes;
 
     @SerializedName("estadias")
@@ -30,6 +32,8 @@ public class Viagem implements Serializable {
 
     @SerializedName("fotosMemorias")
     private ArrayList<FotoMemoria> listaFotos;
+
+
 
     // --- 1. CONSTRUTOR VAZIO (Importante para a API/Retrofit) ---
     public Viagem() {

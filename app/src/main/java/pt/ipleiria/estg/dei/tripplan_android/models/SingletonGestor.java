@@ -245,7 +245,7 @@ public class SingletonGestor {
 
         System.out.println("DEBUG: A pedir detalhes da viagem ID: " + idViagem);
 
-        String expand = "destinos,atividades,transportes,fotosMemorias";
+        String expand = "destinos,atividades,transportes,fotosMemorias,estadias";
         Call<Viagem> call = apiService.getDetalhesViagem(idViagem, expand);
 
         call.enqueue(new Callback<Viagem>() {
@@ -621,5 +621,38 @@ public class SingletonGestor {
             cursor.close();
         }
         return user;
+    }
+
+    // Método para editar a viagem na API e atualizar a lista local
+    public void editarViagemAPI(Viagem viagem, final GestaoViagemListener listener) {
+        if (!isConnectionInternet(context)) {
+            if (listener != null) listener.onErro("Sem ligação à internet.");
+            return;
+        }
+
+        // O método atualizarViagem já existe na tua TripplanAPI
+        apiService.atualizarViagem(viagem.getId(), viagem).enqueue(new Callback<Viagem>() {
+            @Override
+            public void onResponse(Call<Viagem> call, Response<Viagem> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    // Atualizar a viagem na lista local em memória
+                    for (int i = 0; i < viagens.size(); i++) {
+                        if (viagens.get(i).getId() == viagem.getId()) {
+                            viagens.set(i, response.body());
+                            break;
+                        }
+                    }
+                    // Usamos o listener que já tinhas para avisar o sucesso
+                    if (listener != null) listener.onViagemRemovida();
+                } else {
+                    if (listener != null) listener.onErro("Erro ao atualizar: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Viagem> call, Throwable t) {
+                if (listener != null) listener.onErro("Erro de rede: " + t.getMessage());
+            }
+        });
     }
 }
