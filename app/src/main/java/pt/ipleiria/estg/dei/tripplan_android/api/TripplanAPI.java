@@ -1,5 +1,6 @@
 package pt.ipleiria.estg.dei.tripplan_android.api;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import pt.ipleiria.estg.dei.tripplan_android.models.Atividade;
@@ -16,6 +17,8 @@ import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;
+import retrofit2.http.Header;
+import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
@@ -64,10 +67,10 @@ public interface TripplanAPI {
     Call<Estadia> adicionarEstadia(@Body Estadia estadia);
 
     /* --- FAVORITOS --- */
-    @GET("api/favorito")
+    @Headers("Accept: application/json")
+    @GET("api/favorito?expand=viagem")
     Call<List<Favorito>> getFavoritos(
-            @Query("user_id") int userId,
-            @Query("expand") String expand
+            @Query("user_id") int userId
     );
 
     @POST("api/favorito")

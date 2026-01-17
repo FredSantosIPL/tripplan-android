@@ -45,6 +45,9 @@ public class SingletonGestor {
     private int userIdLogado = 0;
     private String token = null;
 
+    private String usernameLogado;
+    private String emailLogado;
+
     // =============================================================
     //       CONSTRUTOR & SINGLETON
     // =============================================================
@@ -376,26 +379,36 @@ public class SingletonGestor {
     }
 
     // =============================================================
-    //       FAVORITOS ❤️
+    //       FAVORITOS
     // =============================================================
 
     public void getFavoritosAPI() {
         if (!isConnectionInternet(context)) return;
 
-        // O segundo parâmetro TEM de ser "viagem"
-        apiService.getFavoritos(userIdLogado, "viagem").enqueue(new Callback<List<Favorito>>() {
+        // Chamamos a API apenas com o ID.
+        // O Retrofit já sabe que tem de adicionar "?expand=viagem" por causa do interface.
+        apiService.getFavoritos(userIdLogado).enqueue(new Callback<List<Favorito>>() {
             @Override
             public void onResponse(Call<List<Favorito>> call, Response<List<Favorito>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     listaFavoritos = (ArrayList<Favorito>) response.body();
+
+                    // DEBUG: Só para teres a certeza que os nomes estão a chegar
+                    for (Favorito f : listaFavoritos) {
+                        if (f.getViagem() != null) {
+                            android.util.Log.d("ZECA_FAV", "Favorito encontrado: " + f.getViagem().getNomeViagem());
+                        }
+                    }
+
                     if (favoritosListener != null) {
                         favoritosListener.onRefreshFavoritos(listaFavoritos);
                     }
                 }
             }
+
             @Override
             public void onFailure(Call<List<Favorito>> call, Throwable t) {
-                android.util.Log.e("ZECA_API", "Erro: " + t.getMessage());
+                android.util.Log.e("ZECA_API", "Erro ao carregar favoritos: " + t.getMessage());
             }
         });
     }
@@ -654,5 +667,33 @@ public class SingletonGestor {
                 if (listener != null) listener.onErro("Erro de rede: " + t.getMessage());
             }
         });
+    }
+
+    public void setUsernameLogado(String username) {
+        this.usernameLogado = username;
+        SharedPreferences.Editor editor = context.getSharedPreferences("DADOS_TRIPPLAN", Context.MODE_PRIVATE).edit();
+        editor.putString("USERNAME_USER", username);
+        editor.apply();
+    }
+
+    public void setEmailLogado(String email) {
+        this.emailLogado = email;
+        SharedPreferences.Editor editor = context.getSharedPreferences("DADOS_TRIPPLAN", Context.MODE_PRIVATE).edit();
+        editor.putString("EMAIL_USER", email);
+        editor.apply();
+    }
+
+    public String getUsernameLogado() {
+        if (usernameLogado == null) {
+            usernameLogado = context.getSharedPreferences("DADOS_TRIPPLAN", Context.MODE_PRIVATE).getString("USERNAME_USER", "Utilizador");
+        }
+        return usernameLogado;
+    }
+
+    public String getEmailLogado() {
+        if (emailLogado == null) {
+            emailLogado = context.getSharedPreferences("DADOS_TRIPPLAN", Context.MODE_PRIVATE).getString("EMAIL_USER", "email@exemplo.com");
+        }
+        return emailLogado;
     }
 }

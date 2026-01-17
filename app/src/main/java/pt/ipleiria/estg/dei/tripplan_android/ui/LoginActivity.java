@@ -75,7 +75,9 @@ public class LoginActivity extends AppCompatActivity {
 
                         // 2. Usar a variável para guardar os dados
                         gestor.setUserIdLogado(userId);
-                        gestor.setToken(token); // Agora já não dá erro!
+                        gestor.setToken(token);
+                        gestor.setUsernameLogado(loginResponse.getUsername());
+                        gestor.setEmailLogado(loginResponse.getEmail());
 
                         Toast.makeText(LoginActivity.this, "Bem-vindo!", Toast.LENGTH_SHORT).show();
 

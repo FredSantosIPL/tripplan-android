@@ -17,6 +17,8 @@ public class Favorito implements Serializable {
     private Viagem viagem;
 
     // Construtor
+    public Favorito() {
+    }
     public Favorito(int id, int userId, int planoViagemId) {
         this.id = id;
         this.userId = userId;

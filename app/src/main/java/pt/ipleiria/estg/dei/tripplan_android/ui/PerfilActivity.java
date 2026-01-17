@@ -54,25 +54,11 @@ public class PerfilActivity extends AppCompatActivity {
     }
 
     private void carregarDadosPerfil() {
-        SharedPreferences prefs = getSharedPreferences("DADOS_TRIPPLAN", Context.MODE_PRIVATE);
+        SingletonGestor gestor = SingletonGestor.getInstance(this);
+        String nomeReal = gestor.getUsernameLogado();
+        String emailReal = gestor.getEmailLogado();
 
-        // Se tiveres guardado o nome no registo/login, usa-o.
-        // Como a API de login simples geralmente só devolve token,
-        // usamos o Email como identificador principal por enquanto.
-        String email = prefs.getString("EMAIL_USER", "Utilizador");
-
-        // Extrair o nome do email (ex: "fred" de "fred@mail.com") para ficar mais bonito
-        String nomeExibicao = "Viajante";
-        if (email.contains("@")) {
-            nomeExibicao = email.substring(0, email.indexOf("@"));
-            // Capitalizar a primeira letra (estética)
-            nomeExibicao = nomeExibicao.substring(0, 1).toUpperCase() + nomeExibicao.substring(1);
-        }
-
-        tvNome.setText(nomeExibicao);
-        tvEmail.setText(email);
-
-        // Se quiseres ser pro, podes meter o ID do user num texto escondido ou debug
-        // int id = SingletonGestor.getInstance(this).getUserIdLogado();
+        tvNome.setText(nomeReal);
+        tvEmail.setText(emailReal);
     }
 }
