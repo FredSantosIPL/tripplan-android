@@ -30,7 +30,7 @@ public interface TripplanAPI {
     @POST("api/auth/signup")
     Call<Void> registarUtilizador(@Body RegisterRequest request);
 
-    /* --- VIAGENS (Trips) --- */
+
     @GET("api/trips")
     Call<List<Viagem>> getAllViagens(@Query("user_id") int userId);
 

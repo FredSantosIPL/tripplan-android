@@ -1,8 +1,6 @@
 package pt.ipleiria.estg.dei.tripplan_android.ui;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
@@ -29,13 +27,11 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-        // Botão de Configuração de IP
         findViewById(R.id.btnConfig).setOnClickListener(v -> {
             startActivity(new Intent(LoginActivity.this, ConfigActivity.class));
         });
 
-        // Botão de Login
+
         binding.btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -69,19 +65,17 @@ public class LoginActivity extends AppCompatActivity {
                     LoginResponse loginResponse = response.body();
 
                     if (loginResponse != null && loginResponse.getToken() != null) {
+
+                        // --- CORREÇÃO AQUI ---
                         int userId = loginResponse.getId();
                         String token = loginResponse.getToken();
 
-                        // 1. Instanciar o Gestor e guardar dados de sessão (RAM)
+                        // 1. Instanciar o Gestor numa variável
                         SingletonGestor gestor = SingletonGestor.getInstance(LoginActivity.this);
-                        gestor.setUserIdLogado(userId);
-                        gestor.setToken(token);
 
-                        // 2. Guardar o Email nas SharedPreferences (Disco) para o Perfil usar
-                        SharedPreferences prefs = getSharedPreferences("DADOS_TRIPPLAN", Context.MODE_PRIVATE);
-                        SharedPreferences.Editor editor = prefs.edit();
-                        editor.putString("EMAIL_USER", email);
-                        editor.apply();
+                        // 2. Usar a variável para guardar os dados
+                        gestor.setUserIdLogado(userId);
+                        gestor.setToken(token); // Agora já não dá erro!
 
                         Toast.makeText(LoginActivity.this, "Bem-vindo!", Toast.LENGTH_SHORT).show();
 

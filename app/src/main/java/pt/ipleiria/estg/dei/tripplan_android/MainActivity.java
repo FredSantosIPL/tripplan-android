@@ -2,9 +2,15 @@ package pt.ipleiria.estg.dei.tripplan_android;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import java.util.ArrayList;
+
+import pt.ipleiria.estg.dei.tripplan_android.models.Viagem;
 import pt.ipleiria.estg.dei.tripplan_android.ui.FavoritosFragment;
 import pt.ipleiria.estg.dei.tripplan_android.ui.HomeFragment;
 import pt.ipleiria.estg.dei.tripplan_android.ui.PerfilActivity;

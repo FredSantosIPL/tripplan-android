@@ -6,11 +6,9 @@ import java.io.Serializable;
 public class Atividade implements Serializable {
     private int id;
 
-    // Enviamos 0 para o PHP saber que tem de procurar sozinho
     @SerializedName("destino_id")
     private int destinoId;
 
-    // CAMPO NOVO: Obrigatório para a nossa batota funcionar
     @SerializedName("plano_viagem_id")
     private int planoViagemId;
 
@@ -19,7 +17,11 @@ public class Atividade implements Serializable {
 
     private String tipo;
 
-    // Construtor Atualizado
+    // --- 1. CONSTRUTOR VAZIO (Obrigatório para o erro "Expected 5 arguments") ---
+    public Atividade() {
+    }
+
+    // Construtor Completo
     public Atividade(int id, int destinoId, int planoViagemId, String nomeAtividade, String tipo) {
         this.id = id;
         this.destinoId = destinoId;
@@ -28,7 +30,7 @@ public class Atividade implements Serializable {
         this.tipo = tipo;
     }
 
-    // Getters e Setters
+    // --- GETTERS E SETTERS NORMAIS ---
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
@@ -44,13 +46,24 @@ public class Atividade implements Serializable {
     public String getTipo() { return tipo; }
     public void setTipo(String tipo) { this.tipo = tipo; }
 
+    // --- 2. MÉTODOS DE COMPATIBILIDADE (Para o Helper não chorar) ---
+
+    // O Helper chama "setTitulo", mas tu tens "nomeAtividade". Isto resolve:
+    public void setTitulo(String titulo) {
+        this.nomeAtividade = titulo;
+    }
+
+    public String getTitulo() {
+        return this.nomeAtividade;
+    }
+
+    // O Helper chama "setViagemId", mas tu tens "planoViagemId". Isto resolve:
+    public void setViagemId(int id) {
+        this.planoViagemId = id;
+    }
+
     @Override
     public String toString() {
-        return "Atividade{" +
-                "id=" + id +
-                ", nome='" + nomeAtividade + '\'' +
-                ", destinoID=" + destinoId +
-                ", planoViagemID=" + planoViagemId + // <--- ISTO É O QUE QUEREMOS VER
-                '}';
+        return nomeAtividade;
     }
 }

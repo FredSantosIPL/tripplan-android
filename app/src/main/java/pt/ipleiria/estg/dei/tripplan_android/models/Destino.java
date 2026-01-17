@@ -6,7 +6,6 @@ import java.io.Serializable;
 public class Destino implements Serializable {
     private int id;
 
-    // --- CAMPO NOVO IMPORTANTE ---
     @SerializedName("plano_viagem_id")
     private int planoViagemId;
 
@@ -21,17 +20,21 @@ public class Destino implements Serializable {
     @SerializedName("data_chegada")
     private String dataChegada;
 
-    // Construtor Atualizado
+    // --- 1. CONSTRUTOR VAZIO (OBRIGATÓRIO para o Helper) ---
+    public Destino() {
+    }
+
+    // Construtor Completo
     public Destino(int id, int planoViagemId, int agenteViagemId, String nomeCidade, String pais, String dataChegada) {
         this.id = id;
-        this.planoViagemId = planoViagemId; // Recebe o ID da Viagem
+        this.planoViagemId = planoViagemId;
         this.agenteViagemId = agenteViagemId;
         this.nomeCidade = nomeCidade;
         this.pais = pais;
         this.dataChegada = dataChegada;
     }
 
-    // Getters e Setters
+    // --- GETTERS E SETTERS NORMAIS ---
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
@@ -49,4 +52,20 @@ public class Destino implements Serializable {
 
     public String getDataChegada() { return dataChegada; }
     public void setDataChegada(String dataChegada) { this.dataChegada = dataChegada; }
+
+    // --- 2. MÉTODOS DE COMPATIBILIDADE (Para o Helper não chorar) ---
+
+    // O Helper chama "setCidade", mas tu tens "nomeCidade". Isto resolve:
+    public void setCidade(String cidade) {
+        this.nomeCidade = cidade;
+    }
+
+    public String getCidade() {
+        return this.nomeCidade;
+    }
+
+    @Override
+    public String toString() {
+        return nomeCidade + ", " + pais;
+    }
 }
